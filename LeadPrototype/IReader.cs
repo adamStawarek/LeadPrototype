@@ -6,6 +6,6 @@ namespace LeadPrototype
     {
         IReaderSettings Settings { get; set; }
         IEnumerable<Product> ReadObject();
-        IEnumerable<Product> ReadTable();
+        Dictionary<(int key1, int key2), int> ReadTable();
     }
 }

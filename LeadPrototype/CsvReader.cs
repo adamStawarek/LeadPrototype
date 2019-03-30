@@ -1,3 +1,4 @@
+using System.Collections;
 using Serilog;
 using Serilog.Events;
 using System.Collections.Generic;
@@ -58,9 +59,53 @@ namespace LeadPrototype
             return false;
         }
 
-        public override IEnumerable<Product> ReadTable()
+        public override Dictionary<(int key1, int key2), int> ReadTable()
         {
-            throw new System.NotImplementedException();
+            {
+                var filePath = ((CsvSettings) Settings).FilePath;
+                var isHeader = ((CsvSettings) Settings).IsHeader;
+                if (!CheckFilePath(filePath)) return null;
+
+                try
+                {
+                    var table = new Dictionary<(int key1, int key2), int>();
+                    int[] productIds = { };
+                    var isFirstLine = true;
+                    using (var reader =
+                        new StreamReader(filePath, Encoding.Default, true))
+                    {
+                        while (!reader.EndOfStream)
+                        {
+                            var line = reader.ReadLine();
+                            var values = line?.Split(',').Where(v => !string.IsNullOrEmpty(v)).ToArray();
+                            if (isFirstLine && isHeader)
+                            {
+
+                                productIds = values?.Select(int.Parse).ToArray();
+                                isFirstLine = false;
+                                continue;
+                            }
+
+                            if (values == null) continue;
+
+                            for (int i = 1; i < values.Count(); i++)
+                            {
+                                if (productIds != null)
+                                    table.Add((int.Parse(values[0]), productIds[i - 1]), int.Parse(values[i]));
+                            }
+
+                        }
+                    }
+
+                    return table;
+                }
+                catch
+                {
+                    Logger.Write(LogEventLevel.Warning,
+                        $"Exception occured when reading {filePath.Split('\\').Last()}");
+                    return null;
+                }
+            }
         }
     }
 }

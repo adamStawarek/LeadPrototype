@@ -13,7 +13,7 @@ namespace LeadPrototype.Tests.Unit
             var reader = ReaderFactory.CreateReader(settings);
             var expected = new List<Product>
             {
-                new Product(){Id = 1},
+                new Product(){Id=1},
                 new Product(){Id=2},
                 new Product(){Id=3}
             };
@@ -23,6 +23,14 @@ namespace LeadPrototype.Tests.Unit
                 Assert.AreEqual(3, actual.Count());
                 CollectionAssert.AreEquivalent(expected, actual);
             });
+        }
+
+        [Test]
+        public void ReadTable_Returns_Table_With_25_Values()
+        {
+            var settings = new CsvSettings(@"../../../products_corr.csv") { IsHeader = true };
+            var reader = ReaderFactory.CreateReader(settings);
+            Assert.AreEqual(25,reader.ReadTable().Count());
         }
     }
 }

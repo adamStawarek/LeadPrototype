@@ -14,6 +14,6 @@ namespace LeadPrototype
             Settings = settings;
         }     
         public abstract IEnumerable<Product> ReadObject();
-        public abstract IEnumerable<Product> ReadTable();
+        public abstract Dictionary<(int key1, int key2), int> ReadTable();
     }
 }
