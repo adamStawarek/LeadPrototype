@@ -3,3 +3,8 @@
 ################################################################################
 
 /.vs/LeadPrototype
+/LeadPrototype/.vs/LeadPrototype
+/LeadPrototype/bin/Debug/netcoreapp2.1
+/LeadPrototype/obj
+/LeadPrototype.Tests.Unit/bin/Debug/netcoreapp2.1
+/LeadPrototype.Tests.Unit/obj

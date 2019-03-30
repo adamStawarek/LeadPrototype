@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>netcoreapp2.1</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Serilog" Version="2.8.0" />
+      <PackageReference Include="Serilog.Sinks.ColoredConsole" Version="3.0.1" />
+      <PackageReference Include="Serilog.Sinks.Debug" Version="1.0.2-dev-00020" />
+      <PackageReference Include="Serilog.Sinks.InMemory" Version="0.2.0" />
+      <PackageReference Include="Serilog.Sinks.InMemory.Assertions" Version="0.4.0" />
+    </ItemGroup>
+
+</Project>
