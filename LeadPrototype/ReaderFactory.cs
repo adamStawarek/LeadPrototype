@@ -15,6 +15,8 @@ namespace LeadPrototype
         {
             Logger = new LoggerConfiguration()
                 .WriteTo.InMemory()
+                .WriteTo.ColoredConsole()
+                .WriteTo.Debug()
                 .CreateLogger();
             Readers = GetReaders();
         }

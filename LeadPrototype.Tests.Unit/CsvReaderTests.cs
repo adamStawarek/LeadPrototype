@@ -26,11 +26,19 @@ namespace LeadPrototype.Tests.Unit
         }
 
         [Test]
-        public void ReadTable_Returns_Table_With_25_Values()
+        public void ReadTable_Returns_Collections_With_5_Items()
         {
             var settings = new CsvSettings(@"../../../products_corr.csv") { IsHeader = true };
             var reader = ReaderFactory.CreateReader(settings);
-            Assert.AreEqual(25,reader.ReadTable().Count());
+            Assert.AreEqual(5,reader.ReadTable().Count());
+        }
+
+        [Test]
+        public void ReadTable_Returns__Collections_With_5_Items_When_Header_IS_Set_To_False()
+        {
+            var settings = new CsvSettings(@"../../../products_corr_no_header.csv") { IsHeader = false };
+            var reader = ReaderFactory.CreateReader(settings);
+            Assert.AreEqual(5, reader.ReadTable().Count());
         }
     }
 }

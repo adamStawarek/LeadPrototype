@@ -1,10 +1,12 @@
-using System.Collections;
 using Serilog;
 using Serilog.Events;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace LeadPrototype
 {
@@ -59,53 +61,47 @@ namespace LeadPrototype
             return false;
         }
 
-        public override Dictionary<(int key1, int key2), int> ReadTable()
+        public override Dictionary<int, int[]> ReadTable()
         {
+
+            var filePath = ((CsvSettings)Settings).FilePath;
+            var isHeader = ((CsvSettings)Settings).IsHeader;
+            if (!CheckFilePath(filePath)) return null;
+
+            try
             {
-                var filePath = ((CsvSettings) Settings).FilePath;
-                var isHeader = ((CsvSettings) Settings).IsHeader;
-                if (!CheckFilePath(filePath)) return null;
-
-                try
+                if (!isHeader)
                 {
-                    var table = new Dictionary<(int key1, int key2), int>();
-                    int[] productIds = { };
-                    var isFirstLine = true;
-                    using (var reader =
-                        new StreamReader(filePath, Encoding.Default, true))
+                    var lines = File.ReadAllLines(filePath).ToList();
+                    var result = lines.AsParallel().AsOrdered().Select((line, index) =>
                     {
-                        while (!reader.EndOfStream)
-                        {
-                            var line = reader.ReadLine();
-                            var values = line?.Split(',').Where(v => !string.IsNullOrEmpty(v)).ToArray();
-                            if (isFirstLine && isHeader)
-                            {
-
-                                productIds = values?.Select(int.Parse).ToArray();
-                                isFirstLine = false;
-                                continue;
-                            }
-
-                            if (values == null) continue;
-
-                            for (int i = 1; i < values.Count(); i++)
-                            {
-                                if (productIds != null)
-                                    table.Add((int.Parse(values[0]), productIds[i - 1]), int.Parse(values[i]));
-                            }
-
-                        }
-                    }
-
-                    return table;
+                        var values = line?.Split(',').Where(v => !string.IsNullOrEmpty(v)).Select(int.Parse).ToArray();
+                        return (index+1, values);
+                    }).ToDictionary(d => d.Item1, d => d.Item2);
+                    return result;
                 }
-                catch
+                else
                 {
-                    Logger.Write(LogEventLevel.Warning,
-                        $"Exception occured when reading {filePath.Split('\\').Last()}");
-                    return null;
+                    var lines = File.ReadAllLines(filePath).ToList();
+                    lines.RemoveAt(0);
+                    var result = lines.AsParallel().AsOrdered().Select((line,index) =>
+                    {
+                        var values = line?.Split(',').Where(v => !string.IsNullOrEmpty(v)).Select(int.Parse).ToList();
+                        var idx = values[0];
+                        values.RemoveAt(0);
+                        return (idx, values.ToArray());
+                    }).ToDictionary(d => d.Item1, d => d.Item2);
+                    return result;
                 }
+
+            }
+            catch
+            {
+                Logger.Write(LogEventLevel.Warning,
+                    $"Exception occured when reading {filePath.Split('\\').Last()}");
+                return null;
             }
         }
+
     }
 }

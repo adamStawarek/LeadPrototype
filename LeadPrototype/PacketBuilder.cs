@@ -10,7 +10,7 @@ namespace LeadPrototype
     public class PacketBuilder
     {
         private List<Product> _products;
-        private Dictionary<(int key1, int key2), int> _table;
+        private Dictionary<int, int[]> _table;
         private readonly ILogger _logger;
 
         public PacketBuilder()
@@ -28,7 +28,7 @@ namespace LeadPrototype
             return this;
         }
 
-        public PacketBuilder AddCorrelationTable(Dictionary<(int key1, int key2), int> table)
+        public PacketBuilder AddCorrelationTable(Dictionary<int, int[]> table)
         {
             _table = table;
             return this;
@@ -41,17 +41,19 @@ namespace LeadPrototype
         }
 
 
-        public List<(int prod1, int prod2)> CreatePackets()
+        public List<(int prod1, int prod2,int val)> CreatePackets()
         {
             if (!CheckIfProductsAndTableAreProvided()) return null;
             try
             {
-                var packets = new List<(int prod1, int prod2)>();
+                var packets = new List<(int prod1, int prod2,int val)>();
                 foreach (var product in _products)
                 {
-                    var substitute = _table.Where(t => t.Key.key1 == product.Id && t.Value != 0)
-                        .OrderByDescending(t => t.Value).Select(t => t.Key.key2).FirstOrDefault();
-                    packets.Add((product.Id,substitute));//if substitute equals 0 then there is no substite for given product
+                    var substitute = _table.FirstOrDefault(t => t.Key == product.Id).Value.ToList();
+                    substitute[product.Id-1] = -1;
+                    var max = substitute.Max();
+                    var index = substitute.IndexOf(max)+1;
+                    packets.Add((product.Id,index,max));//if substitute equals 0 then there is no substitute for given product
                 }
 
                 return packets;

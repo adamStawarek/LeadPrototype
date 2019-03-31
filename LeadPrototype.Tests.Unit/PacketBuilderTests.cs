@@ -7,7 +7,7 @@ namespace LeadPrototype.Tests.Unit
     public class PacketBuilderTests
     {
         private List<Product> _products;
-        private Dictionary<(int key1, int key2), int> _table;
+        private Dictionary<int, int[]> _table;
 
         [SetUp]
         public void SetUp()
@@ -16,7 +16,7 @@ namespace LeadPrototype.Tests.Unit
             var reader1 = ReaderFactory.CreateReader(settings);
             _products = reader1.ReadObject().ToList();
 
-            settings = new CsvSettings(@"../../../products_corr.csv") { IsHeader = true };
+            settings = new CsvSettings(@"../../../products_corr_no_header.csv") { IsHeader = false };
             var reader2 = ReaderFactory.CreateReader(settings);
             _table = reader2.ReadTable();
         }
@@ -28,7 +28,21 @@ namespace LeadPrototype.Tests.Unit
                 .AddProducts(_products)
                 .AddCorrelationTable(_table);
             var packets=packetFactory.CreatePackets();
-            Assert.AreEqual(3,packets.Count);
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(3,packets.Count);
+                Assert.AreEqual(1, packets[0].prod1);
+                Assert.AreEqual(3,packets[0].prod2);
+                Assert.AreEqual(2, packets[0].val);
+
+                Assert.AreEqual(2, packets[1].prod1);
+                Assert.AreEqual(4, packets[1].prod2);
+                Assert.AreEqual(4, packets[1].val);
+
+                Assert.AreEqual(3, packets[2].prod1);
+                Assert.AreEqual(4, packets[2].prod2);
+                Assert.AreEqual(3, packets[2].val);
+            });
         }
     }
 }
