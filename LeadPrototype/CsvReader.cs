@@ -75,6 +75,7 @@ namespace LeadPrototype
                     var lines = File.ReadAllLines(filePath).ToList();
                     var result = lines.AsParallel().AsOrdered().Select((line, index) =>
                     {
+                        Logger.Write(LogEventLevel.Information,$"parse {index} table row");
                         var values = line?.Split(',').Where(v => !string.IsNullOrEmpty(v)).Select(int.Parse).ToArray();
                         return (index+1, values);
                     }).ToDictionary(d => d.Item1, d => d.Item2);
@@ -86,6 +87,7 @@ namespace LeadPrototype
                     lines.RemoveAt(0);
                     var result = lines.AsParallel().AsOrdered().Select((line,index) =>
                     {
+                        Logger.Write(LogEventLevel.Information, $"parse {index} table row");
                         var values = line?.Split(',').Where(v => !string.IsNullOrEmpty(v)).Select(int.Parse).ToList();
                         var idx = values[0];
                         values.RemoveAt(0);
