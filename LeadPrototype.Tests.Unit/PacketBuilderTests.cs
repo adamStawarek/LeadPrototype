@@ -1,5 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
+using LeadPrototype.Models;
+using LeadPrototype.Readers;
+using LeadPrototype.Readers.Settings;
 using NUnit.Framework;
 
 namespace LeadPrototype.Tests.Unit
@@ -12,11 +15,11 @@ namespace LeadPrototype.Tests.Unit
         [SetUp]
         public void SetUp()
         {
-            var settings = new CsvSettings(@"../../../products.csv") { IsHeader = true };
+            var settings = new CsvSettings(@"../../../Tmp/products.csv") { IsHeader = true };
             var reader1 = ReaderFactory.CreateReader(settings);
             _products = reader1.ReadObject().ToList();
 
-            settings = new CsvSettings(@"../../../products_corr_no_header.csv") { IsHeader = false };
+            settings = new CsvSettings(@"../../../Tmp/products_corr_no_header.csv") { IsHeader = false };
             var reader2 = ReaderFactory.CreateReader(settings);
             _table = reader2.ReadTable();
         }

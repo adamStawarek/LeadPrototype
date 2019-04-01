@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using LeadPrototype.Readers;
+using LeadPrototype.Readers.Settings;
 
 namespace LeadPrototype
 {
@@ -10,7 +12,7 @@ namespace LeadPrototype
         {
             string path = null;
             bool isHeader = false,useSavedFile = false;
-            var pathToProductsTxt = "path_to_products.txt";
+            var pathToProductsTxt = "Tmp/path_to_products.txt";
             if (File.Exists(pathToProductsTxt))
             {
                 string[] text = File.ReadAllText(pathToProductsTxt).Split(';');
@@ -30,7 +32,7 @@ namespace LeadPrototype
 
             string pathToCorr = null;
             bool isHeaderInTable = false;
-            var pathToTableTxt = "path_to_table.txt";
+            var pathToTableTxt = "Tmp/path_to_table.txt";
             if (File.Exists(pathToTableTxt))
             {
                 string[] text = File.ReadAllText(pathToTableTxt).Split(';');

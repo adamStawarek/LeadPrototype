@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using LeadPrototype.Readers.Settings;
 using Serilog;
 using Serilog.Sinks.InMemory;
 
-namespace LeadPrototype
+namespace LeadPrototype.Readers
 {
     public static class ReaderFactory
     {
@@ -20,7 +21,8 @@ namespace LeadPrototype
                 .CreateLogger();
             Readers = GetReaders();
         }
-        public static List<Type> GetReaders()
+
+        private static List<Type> GetReaders()
         {
             var interfaceType = typeof(IReader);
             var readers = AppDomain.CurrentDomain.GetAssemblies()

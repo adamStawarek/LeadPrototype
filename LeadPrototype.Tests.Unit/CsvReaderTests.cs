@@ -1,5 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
+using LeadPrototype.Models;
+using LeadPrototype.Readers;
+using LeadPrototype.Readers.Settings;
 using NUnit.Framework;
 
 namespace LeadPrototype.Tests.Unit
@@ -9,7 +12,7 @@ namespace LeadPrototype.Tests.Unit
         [Test]
         public void ReadObject_Returns_Collection_Of_3_Products()
         {
-            var settings = new CsvSettings(@"../../../products.csv") { IsHeader = true };
+            var settings = new CsvSettings(@"../../../Tmp/products.csv") { IsHeader = true };
             var reader = ReaderFactory.CreateReader(settings);
             var expected = new List<Product>
             {
@@ -28,7 +31,7 @@ namespace LeadPrototype.Tests.Unit
         [Test]
         public void ReadTable_Returns_Collections_With_5_Items()
         {
-            var settings = new CsvSettings(@"../../../products_corr.csv") { IsHeader = true };
+            var settings = new CsvSettings(@"../../../Tmp/products_corr.csv") { IsHeader = true };
             var reader = ReaderFactory.CreateReader(settings);
             Assert.AreEqual(5,reader.ReadTable().Count());
         }
@@ -36,7 +39,15 @@ namespace LeadPrototype.Tests.Unit
         [Test]
         public void ReadTable_Returns__Collections_With_5_Items_When_Header_IS_Set_To_False()
         {
-            var settings = new CsvSettings(@"../../../products_corr_no_header.csv") { IsHeader = false };
+            var settings = new CsvSettings(@"../../../Tmp/products_corr_no_header.csv") { IsHeader = false };
+            var reader = ReaderFactory.CreateReader(settings);
+            Assert.AreEqual(5, reader.ReadTable().Count());
+        }
+
+        [Test]
+        public void ReadTable_Takes_Less_Than_500_Milliseconds()
+        {
+            var settings = new CsvSettings(@"../../../Tmp/products_corr_no_header.csv") { IsHeader = false };
             var reader = ReaderFactory.CreateReader(settings);
             Assert.AreEqual(5, reader.ReadTable().Count());
         }

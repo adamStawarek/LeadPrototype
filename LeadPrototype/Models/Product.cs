@@ -1,4 +1,4 @@
-namespace LeadPrototype
+namespace LeadPrototype.Models
 {
     public class Product
     {

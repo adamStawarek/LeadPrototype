@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using LeadPrototype.Models;
+using LeadPrototype.Readers.Settings;
 
-namespace LeadPrototype
+namespace LeadPrototype.Readers
 {
     public interface IReader
     {

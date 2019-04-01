@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using LeadPrototype.Models;
+using LeadPrototype.Readers.Settings;
 using Serilog;
 
-namespace LeadPrototype
+namespace LeadPrototype.Readers
 {
     public abstract class BaseReader : IReader
     {

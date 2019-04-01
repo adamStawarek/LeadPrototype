@@ -1,4 +1,4 @@
-namespace LeadPrototype
+namespace LeadPrototype.Readers.Settings
 {
     public class CsvSettings : IReaderSettings
     {
