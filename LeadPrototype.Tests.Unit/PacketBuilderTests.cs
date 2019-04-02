@@ -33,7 +33,7 @@ namespace LeadPrototype.Tests.Unit
             var packets=packetFactory.CreatePackets();
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(3,packets.Count);
+                Assert.AreEqual(4,packets.Count);
                 Assert.AreEqual(1, packets[0].prod1);
                 Assert.AreEqual(3,packets[0].prod2);
                 Assert.AreEqual(2, packets[0].val);
@@ -45,6 +45,10 @@ namespace LeadPrototype.Tests.Unit
                 Assert.AreEqual(3, packets[2].prod1);
                 Assert.AreEqual(4, packets[2].prod2);
                 Assert.AreEqual(3, packets[2].val);
+
+                Assert.AreEqual(8, packets[3].prod1);
+                Assert.AreEqual(5, packets[3].prod2);
+                Assert.AreEqual(2, packets[3].val);
             });
         }
     }

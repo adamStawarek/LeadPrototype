@@ -12,7 +12,7 @@ namespace LeadPrototype
         {
             string path = null;
             bool isHeader = false,useSavedFile = false;
-            var pathToProductsTxt = "Tmp/path_to_products.txt";
+            var pathToProductsTxt = @"C:/Lead/Temp/path_to_products.txt";
             if (File.Exists(pathToProductsTxt))
             {
                 string[] text = File.ReadAllText(pathToProductsTxt).Split(';');
@@ -26,13 +26,14 @@ namespace LeadPrototype
                 Console.WriteLine("Give path to product file: ");
                 path = Console.ReadLine();
                 Console.Write("Is header included(y/n)? ");
-                isHeader = Console.ReadKey().KeyChar == 'y'; 
-                File.WriteAllText(pathToProductsTxt,path+";"+isHeader);
+                isHeader = Console.ReadKey().KeyChar == 'y';
+                Directory.CreateDirectory(@"C:/Lead/Temp");
+                File.WriteAllText(pathToProductsTxt,path+"; "+isHeader);
             }
 
             string pathToCorr = null;
             bool isHeaderInTable = false;
-            var pathToTableTxt = "Tmp/path_to_table.txt";
+            var pathToTableTxt =  @"C:/Lead/Temp/path_to_table.txt";
             if (File.Exists(pathToTableTxt))
             {
                 string[] text = File.ReadAllText(pathToTableTxt).Split(';');
@@ -47,6 +48,7 @@ namespace LeadPrototype
                 pathToCorr = Console.ReadLine();
                 Console.Write("Is header included(y/n)? ");
                 isHeaderInTable = Console.ReadKey().KeyChar == 'y';
+                Directory.CreateDirectory(@"C:/Lead/Temp");
                 File.WriteAllText(pathToTableTxt, pathToCorr + ";" + isHeaderInTable);
             }        
 

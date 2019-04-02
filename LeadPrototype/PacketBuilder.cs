@@ -54,7 +54,8 @@ namespace LeadPrototype
                     substitute[product.Id-1] = -1;
                     var max = substitute.Max();
                     var index = substitute.IndexOf(max)+1;
-                    packets.Add((product.Id,index,max));//if substitute equals 0 then there is no substitute for given product
+                    var prod2Id = Mapper.MapToProduct(index).Id;
+                    packets.Add((product.Id,prod2Id-1,max));//if substitute equals 0 then there is no substitute for given product
                 }
 
                 return packets;
