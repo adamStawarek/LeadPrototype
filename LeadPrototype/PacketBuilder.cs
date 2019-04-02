@@ -45,9 +45,10 @@ namespace LeadPrototype
         public List<(int prod1, int prod2,int val)> CreatePackets()
         {
             if (!CheckIfProductsAndTableAreProvided()) return null;
+            var packets = new List<(int prod1, int prod2, int val)>();
             try
             {
-                var packets = new List<(int prod1, int prod2,int val)>();
+               
                 foreach (var product in _products)
                 {
                     var substitute = _table.FirstOrDefault(t => t.Key == product.Id).Value.ToList();
@@ -58,13 +59,13 @@ namespace LeadPrototype
                     packets.Add((product.Id,prod2Id-1,max));//if substitute equals 0 then there is no substitute for given product
                 }
 
-                return packets;
+                return packets.OrderByDescending(p=>p.val).ToList();
             }
             catch (Exception e)
             {
                 _logger.Write(LogEventLevel.Error,$"cannot create packets: exception occured: {e.InnerException}");
-                return null;
-            }
+               
+            } return packets.OrderByDescending(p => p.val).ToList();
         }
 
         private bool CheckIfProductsAndTableAreProvided()

@@ -9,3 +9,9 @@
 /LeadPrototype.Tests.Unit/bin/Debug/netcoreapp2.1
 /LeadPrototype.Tests.Unit/obj
 /LeadPrototype/LeadPrototype.csproj.user
+/LeadPrototype/bin/Debug/net472
+/LeadPrototype/LeadPrototype.Libs.csproj.user
+/packages
+/ReportGenerator/bin/Debug
+/ReportGenerator/obj/Debug
+/ReportGenerator/packages
