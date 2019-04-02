@@ -172,8 +172,8 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LeadPrototype\LeadPrototype.Libs.csproj">
-      <Project>{c7eb5991-7bca-4002-861e-ebb035655f6a}</Project>
+    <ProjectReference Include="..\LeadPrototype.Libs\LeadPrototype.Libs.csproj">
+      <Project>{2cdc2174-817b-47ea-860e-03f43acc58e1}</Project>
       <Name>LeadPrototype.Libs</Name>
     </ProjectReference>
   </ItemGroup>

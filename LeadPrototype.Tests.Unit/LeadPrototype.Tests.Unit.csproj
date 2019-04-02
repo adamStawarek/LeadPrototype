@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LeadPrototype\LeadPrototype.Libs.csproj" />
+    <ProjectReference Include="..\LeadPrototype.Libs\LeadPrototype.Libs.csproj" />
   </ItemGroup>
 
 </Project>

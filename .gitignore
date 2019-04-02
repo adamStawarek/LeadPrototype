@@ -15,3 +15,10 @@
 /ReportGenerator/bin/Debug
 /ReportGenerator/obj/Debug
 /ReportGenerator/packages
+/LeadPrototype.Gui/bin/Debug
+/LeadPrototype.Gui/obj/Debug
+/LeadPrototype.Gui/packages
+/LeadPrototype.Libs/.vs
+/LeadPrototype.Libs/bin/Debug
+/LeadPrototype.Libs/obj
+/LeadPrototype.Libs/LeadPrototype.Libs.csproj.user
