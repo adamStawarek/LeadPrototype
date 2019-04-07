@@ -1,10 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using LeadPrototype.Readers;
-using LeadPrototype.Readers.Settings;
+using LeadPrototype.Libs.Readers;
+using LeadPrototype.Libs.Readers.Settings;
 
-namespace LeadPrototype
+namespace LeadPrototype.Libs
 {
     class Program
     {

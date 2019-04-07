@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
-using LeadPrototype.Models;
-using LeadPrototype.Readers;
-using LeadPrototype.Readers.Settings;
+using LeadPrototype.Libs;
+using LeadPrototype.Libs.Models;
+using LeadPrototype.Libs.Readers;
+using LeadPrototype.Libs.Readers.Settings;
 using NUnit.Framework;
 
 namespace LeadPrototype.Tests.Unit
@@ -30,7 +31,7 @@ namespace LeadPrototype.Tests.Unit
             var packetFactory=new PacketBuilder()
                 .AddProducts(_products)
                 .AddCorrelationTable(_table);
-            var packets=packetFactory.CreatePackets();
+            var packets=packetFactory.CreatePackets().OrderBy(p=>p.prod1).ToList();
             Assert.Multiple(() =>
             {
                 Assert.AreEqual(4,packets.Count);

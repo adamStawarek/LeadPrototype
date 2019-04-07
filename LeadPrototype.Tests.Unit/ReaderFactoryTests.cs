@@ -1,5 +1,5 @@
-using LeadPrototype.Readers;
-using LeadPrototype.Readers.Settings;
+using LeadPrototype.Libs.Readers;
+using LeadPrototype.Libs.Readers.Settings;
 using NUnit.Framework;
 
 namespace LeadPrototype.Tests.Unit

@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using LeadPrototype.Models;
-using LeadPrototype.Readers;
-using LeadPrototype.Readers.Settings;
+using LeadPrototype.Libs.Models;
+using LeadPrototype.Libs.Readers;
+using LeadPrototype.Libs.Readers.Settings;
 using NUnit.Framework;
 
 namespace LeadPrototype.Tests.Unit
@@ -35,14 +35,6 @@ namespace LeadPrototype.Tests.Unit
             var settings = new CsvSettings(@"../../../Tmp/products_corr_no_header.csv") { IsHeader = false };
             var reader = ReaderFactory.CreateReader(settings);
             Assert.AreEqual(8, reader.ReadTable().Count());
-        }
-
-        [Test]
-        public void ReadTable_Takes_Less_Than_500_Milliseconds()
-        {
-            var settings = new CsvSettings(@"../../../Tmp/products_corr_no_header.csv") { IsHeader = false };
-            var reader = ReaderFactory.CreateReader(settings);
-            Assert.AreEqual(8, reader.ReadTable().Count());
-        }
+        }       
     }
 }

@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using LeadPrototype.Readers.Settings;
+using LeadPrototype.Libs.Readers.Settings;
 using Serilog;
 using Serilog.Sinks.InMemory;
 
-namespace LeadPrototype.Readers
+namespace LeadPrototype.Libs.Readers
 {
     public static class ReaderFactory
     {

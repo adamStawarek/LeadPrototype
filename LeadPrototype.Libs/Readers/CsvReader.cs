@@ -2,12 +2,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using LeadPrototype.Models;
-using LeadPrototype.Readers.Settings;
+using LeadPrototype.Libs.Models;
+using LeadPrototype.Libs.Readers.Settings;
 using Serilog;
 using Serilog.Events;
 
-namespace LeadPrototype.Readers
+namespace LeadPrototype.Libs.Readers
 {
     public class CsvReader : BaseReader
     {

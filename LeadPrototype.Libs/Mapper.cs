@@ -2,9 +2,9 @@
 using System.IO;
 using System.Linq;
 using System.Text;
-using LeadPrototype.Models;
+using LeadPrototype.Libs.Models;
 
-namespace LeadPrototype
+namespace LeadPrototype.Libs
 {
     public static class Mapper
     {
@@ -18,7 +18,7 @@ namespace LeadPrototype
         {
             var products=new List<Product>();
             using (var reader =
-                new StreamReader("../../../../corr_map.csv", Encoding.Default, true))
+                new StreamReader("../../../../Tmp/corr_map.csv", Encoding.Default, true))
             {
                 while (!reader.EndOfStream)
                 {

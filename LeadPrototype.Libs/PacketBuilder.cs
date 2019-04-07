@@ -1,12 +1,12 @@
-﻿using Serilog;
-using Serilog.Events;
-using Serilog.Sinks.InMemory;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using LeadPrototype.Models;
+using LeadPrototype.Libs.Models;
+using Serilog;
+using Serilog.Events;
+using Serilog.Sinks.InMemory;
 
-namespace LeadPrototype
+namespace LeadPrototype.Libs
 {
     public class PacketBuilder
     {
