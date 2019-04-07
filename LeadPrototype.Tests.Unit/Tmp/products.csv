@@ -1,5 +1,5 @@
-﻿product_id
-1
-2
-3
-8
+﻿Id;ProductName;CategoryId;CategoryName;AveragePrice
+1;Piwo specjalne butelka 149;13;Piwo;3.46
+3;Piwo jasne premium butelka 89;13;Piwo;2.55
+4;Fast-food pozostałe 39;6;Żabka Cafe;4.97
+5;Warzywa, owoce, rośliny REG 258;18;Warzywa & Owoce & Rośliny;7.26

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -11,12 +12,13 @@ namespace LeadPrototype.Libs.Readers
 {
     public class CsvReader : BaseReader
     {
-        public CsvReader(ILogger logger, CsvSettings settings) : base(logger, settings) { }
+        public CsvReader(ILogger logger, CsvSettings settings) : base(logger, settings)
+        {
+        }
 
         public override IEnumerable<Product> ReadObject()
         {
-            var filePath = ((CsvSettings)Settings).FilePath;
-            var isHeader = ((CsvSettings)Settings).IsHeader;
+            var filePath = ((CsvSettings) Settings).PathToProducts;
             if (!CheckFilePath(filePath)) return null;
 
             try
@@ -30,20 +32,25 @@ namespace LeadPrototype.Libs.Readers
                     {
                         var line = reader.ReadLine();
 
-                        if (isFirstLine && isHeader)
+                        if (isFirstLine)
                         {
                             isFirstLine = false;
                             continue;
                         }
-                        var values = line?.Split(',');
+
+                        var values = line?.Split(';');
                         if (values == null) continue;
                         requests.Add(new Product()
                         {
-                            Id = int.Parse(values[0])
+                            Id = int.Parse(values[0]),
+                            ProductName = values[1],
+                            CategoryId = int.Parse(values[2]),
+                            CategoryName = values[3],
+                            AveragePrice = decimal.Parse(values[4], CultureInfo.InvariantCulture)
                         });
-
                     }
                 }
+
                 return requests;
             }
             catch
@@ -62,39 +69,19 @@ namespace LeadPrototype.Libs.Readers
 
         public override Dictionary<int, int[]> ReadTable()
         {
-
-            var filePath = ((CsvSettings)Settings).FilePath;
-            var isHeader = ((CsvSettings)Settings).IsHeader;
+            var filePath = ((CsvSettings) Settings).PathToProductsTable;
             if (!CheckFilePath(filePath)) return null;
 
             try
             {
-                if (!isHeader)
+                var lines = File.ReadAllLines(filePath).ToList();
+                var result = lines.AsParallel().AsOrdered().Select((line, index) =>
                 {
-                    var lines = File.ReadAllLines(filePath).ToList();
-                    var result = lines.AsParallel().AsOrdered().Select((line, index) =>
-                    {
-                        Logger.Write(LogEventLevel.Information,$"parse {index} table row");
-                        var values = line?.Split(',').Where(v => !string.IsNullOrEmpty(v)).Select(int.Parse).ToArray();
-                        return (index+1, values);
-                    }).ToDictionary(d => d.Item1, d => d.Item2);
-                    return result;
-                }
-                else
-                {
-                    var lines = File.ReadAllLines(filePath).ToList();
-                    lines.RemoveAt(0);
-                    var result = lines.AsParallel().AsOrdered().Select((line,index) =>
-                    {
-                        Logger.Write(LogEventLevel.Information, $"parse {index} table row");
-                        var values = line?.Split(',').Where(v => !string.IsNullOrEmpty(v)).Select(int.Parse).ToList();
-                        var idx = values[0];
-                        values.RemoveAt(0);
-                        return (idx, values.ToArray());
-                    }).ToDictionary(d => d.Item1, d => d.Item2);
-                    return result;
-                }
-
+                    Logger.Write(LogEventLevel.Information, $"parse {index} table row");
+                    var values = line?.Split(',').Where(v => !string.IsNullOrEmpty(v)).Select(int.Parse).ToArray();
+                    return (Mapper.MapToProduct(index).Id, values);
+                }).ToDictionary(d => d.Item1, d => d.Item2);
+                return result;
             }
             catch
             {
@@ -103,6 +90,5 @@ namespace LeadPrototype.Libs.Readers
                 return null;
             }
         }
-
     }
 }

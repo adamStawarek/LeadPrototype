@@ -47,16 +47,16 @@ namespace LeadPrototype.Libs
             if (!CheckIfProductsAndTableAreProvided()) return null;
             var packets = new List<(int prod1, int prod2, int val)>();
             try
-            {
-               
+            {               
                 foreach (var product in _products)
                 {
-                    var substitute = _table.FirstOrDefault(t => t.Key == product.Id).Value.ToList();
-                    substitute[product.Id-1] = -1;
-                    var max = substitute.Max();
-                    var index = substitute.IndexOf(max)+1;
+                    var values = _table.FirstOrDefault(t => t.Key == product.Id).Value.ToList();
+                    var productIndex = Mapper.MapToIndex(product);
+                    values[productIndex] = -1;
+                    var max = values.Max();
+                    var index = values.IndexOf(max);
                     var prod2Id = Mapper.MapToProduct(index).Id;
-                    packets.Add((product.Id,prod2Id-1,max));//if substitute equals 0 then there is no substitute for given product
+                    packets.Add((product.Id,prod2Id,max));//if substitute equals 0 then there is no substitute for given product
                 }
 
                 return packets.OrderByDescending(p=>p.val).ToList();

@@ -18,6 +18,11 @@
         TextOptions.TextRenderingMode="Auto"
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}">
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadedCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
     <DockPanel x:Name="Main" Background="{DynamicResource PrimaryHueLightBrush}">
         <materialDesign:ColorZone
             Mode="PrimaryDark"

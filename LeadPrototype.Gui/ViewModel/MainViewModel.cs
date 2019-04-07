@@ -2,9 +2,13 @@ using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using Microsoft.Win32;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
+using LeadPrototype.Libs.Models;
+using LeadPrototype.Libs.Readers;
+using LeadPrototype.Libs.Readers.Settings;
 
 namespace ReportGenerator.ViewModel
 {
@@ -12,17 +16,26 @@ namespace ReportGenerator.ViewModel
     {     
         public RelayCommand OpenFileCommand { get; }
         public RelayCommand<object> DropFileCommand { get; }
-
+        public RelayCommand LoadedCommand { get; set; }
+        private List<Product> _products=new List<Product>();
+        
         public MainViewModel()
         {
+            LoadedCommand=new RelayCommand(OnLoad);
             OpenFileCommand = new RelayCommand(OpenFile);
             DropFileCommand = new RelayCommand<object>(DropFile);
             FetchProducts();
         }
 
+        private void OnLoad()
+        {
+            FetchProducts();
+        }
+
         private void FetchProducts()//load products from csv
         {
-            throw new NotImplementedException();
+//            var settings=new CsvSettings("")
+//            var reader=ReaderFactory.CreateReader()
         }
 
         private void DropFile(object p)

@@ -12,29 +12,37 @@ namespace LeadPrototype.Tests.Unit
         [Test]
         public void ReadObject_Returns_Collection_Of_3_Products()
         {
-            var settings = new CsvSettings(@"../../../Tmp/products.csv") { IsHeader = true };
+            var settings = new CsvSettings(@"../../../Tmp/products.csv","");
             var reader = ReaderFactory.CreateReader(settings);
             var expected = new List<Product>
             {
-                new Product(){Id=1},
-                new Product(){Id=2},
-                new Product(){Id=3},
-                new Product(){Id=8}
+                new Product(){Id=1, ProductName = "Piwo specjalne butelka 149",CategoryId = 13,CategoryName = "Piwo",AveragePrice = 3.46m},
+                new Product(){Id=3, ProductName = "Piwo jasne premium butelka 89",CategoryId = 13,CategoryName = "Piwo",AveragePrice = 2.55m},
+                new Product(){Id=4, ProductName = "Fast-food pozostałe 39",CategoryId = 6,CategoryName = "Żabka Cafe",AveragePrice = 4.97m},
+                new Product(){Id=5, ProductName = "Warzywa, owoce, rośliny REG 258",CategoryId = 18,CategoryName = "Warzywa & Owoce & Rośliny",AveragePrice = 7.26m}
             };
+            
+             var actual = reader.ReadObject().ToList();
+             
             Assert.Multiple(() =>
-            {
-                var actual = reader.ReadObject().ToList();
+            {              
                 Assert.AreEqual(4, actual.Count());
                 CollectionAssert.AreEquivalent(expected, actual);
             });
         }
 
         [Test]
-        public void ReadTable_Returns__Collections_With_8_Items()
+        public void ReadTable_Returns_Collection_Of_8_Dictionaries_In_Which_Keys_Are_Product_Indexes()
         {
-            var settings = new CsvSettings(@"../../../Tmp/products_corr_no_header.csv") { IsHeader = false };
+            var settings = new CsvSettings("",@"../../../Tmp/products_corr_no_header.csv");
+            var expected = new List<int> {1, 3, 4, 5, 6, 8, 9, 10};
             var reader = ReaderFactory.CreateReader(settings);
-            Assert.AreEqual(8, reader.ReadTable().Count());
+            var table = reader.ReadTable();
+            Assert.Multiple(() =>
+            {
+                Assert.AreEqual(8,table.Count);
+                CollectionAssert.AreEquivalent(expected,table.Keys);
+            });                       
         }       
     }
 }

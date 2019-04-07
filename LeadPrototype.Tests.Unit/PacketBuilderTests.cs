@@ -16,13 +16,10 @@ namespace LeadPrototype.Tests.Unit
         [SetUp]
         public void SetUp()
         {
-            var settings = new CsvSettings(@"../../../Tmp/products.csv") { IsHeader = true };
-            var reader1 = ReaderFactory.CreateReader(settings);
-            _products = reader1.ReadObject().ToList();
-
-            settings = new CsvSettings(@"../../../Tmp/products_corr_no_header.csv") { IsHeader = false };
-            var reader2 = ReaderFactory.CreateReader(settings);
-            _table = reader2.ReadTable();
+            var settings = new CsvSettings(@"../../../Tmp/products.csv", @"../../../Tmp/products_corr_no_header.csv");
+            var reader = ReaderFactory.CreateReader(settings);
+            _products = reader.ReadObject().ToList();          
+            _table = reader.ReadTable();
         }
 
         [Test]
@@ -36,19 +33,19 @@ namespace LeadPrototype.Tests.Unit
             {
                 Assert.AreEqual(4,packets.Count);
                 Assert.AreEqual(1, packets[0].prod1);
-                Assert.AreEqual(3,packets[0].prod2);
+                Assert.AreEqual(4,packets[0].prod2);
                 Assert.AreEqual(2, packets[0].val);
 
-                Assert.AreEqual(2, packets[1].prod1);
-                Assert.AreEqual(4, packets[1].prod2);
+                Assert.AreEqual(3, packets[1].prod1);
+                Assert.AreEqual(5, packets[1].prod2);
                 Assert.AreEqual(4, packets[1].val);
 
-                Assert.AreEqual(3, packets[2].prod1);
-                Assert.AreEqual(4, packets[2].prod2);
+                Assert.AreEqual(4, packets[2].prod1);
+                Assert.AreEqual(5, packets[2].prod2);
                 Assert.AreEqual(3, packets[2].val);
 
-                Assert.AreEqual(8, packets[3].prod1);
-                Assert.AreEqual(5, packets[3].prod2);
+                Assert.AreEqual(5, packets[3].prod1);
+                Assert.AreEqual(6, packets[3].prod2);
                 Assert.AreEqual(2, packets[3].val);
             });
         }
