@@ -19,7 +19,7 @@ namespace LeadPrototype.Libs
         {
             var products = new List<Product>();
             using (var reader =
-                new StreamReader("../../../../Tmp/corr_map.csv", Encoding.Default, true))
+                new StreamReader(@"C:\Users\adams\RiderProjects\LeadPrototype\Tmp\corr_map.csv", Encoding.Default, true))
             {
                 while (!reader.EndOfStream)
                 {

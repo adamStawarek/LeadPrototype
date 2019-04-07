@@ -18,11 +18,7 @@
         TextOptions.TextRenderingMode="Auto"
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}">
-    <i:Interaction.Triggers>
-        <i:EventTrigger EventName="Loaded">
-            <i:InvokeCommandAction Command="{Binding LoadedCommand}" />
-        </i:EventTrigger>
-    </i:Interaction.Triggers>
+
     <DockPanel x:Name="Main" Background="{DynamicResource PrimaryHueLightBrush}">
         <materialDesign:ColorZone
             Mode="PrimaryDark"
@@ -85,59 +81,52 @@
                     </Border>
 
                     <StackPanel HorizontalAlignment="Center">
-                        <Label FontSize="16" ContentStringFormat="Correlation table: {0}"
-                               Content="{Binding CorrelationTable,Mode=OneWay}" HorizontalAlignment="Center" />
+                        <Label FontSize="16" ContentStringFormat="Number of loaded products: {0}"
+                               Content="{Binding _products.Count,Mode=OneWay}" HorizontalAlignment="Center" />
                     </StackPanel>
 
-                    <GroupBox Header="Packets" Margin="5">
-                        <ScrollViewer VerticalScrollBarVisibility="Auto">
-                            <StackPanel>
+                    <GroupBox Header="Packets">
+
+                        <StackPanel>
+                            <Expander Header="Categories">
                                 <StackPanel>
-                                    <TextBlock Style="{DynamicResource MaterialDesignTitleTextBlock}" Text="Categories"
-                                               HorizontalAlignment="Center" />
-                                    <ItemsControl Margin="10" ItemsSource="{Binding Categories}">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
-                                                    <CheckBox Content="{Binding Name}" Margin="0,10,0,10"
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="220">
+                                        <ItemsControl Margin="10" ItemsSource="{Binding Categories}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                                                        <CheckBox Content="{Binding CategoryName,Mode=OneWay}" Margin="0,10,0,10"
                                                               Cursor="Hand"
                                                               VerticalContentAlignment="Center"
-                                                              FontSize="26"
-                                                              IsChecked="{Binding IsApplied,Mode=TwoWay}">
-                                                        <i:Interaction.Triggers>
-                                                            <i:EventTrigger EventName="Click">
-                                                                <command:EventToCommand
-                                                                    PassEventArgsToCommand="True"
-                                                                    Command="{Binding Path=DataContext.ApplyFiltersCommand,ElementName=MainPanel}" />
-                                                            </i:EventTrigger>
-                                                        </i:Interaction.Triggers>
-                                                    </CheckBox>
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                    <StackPanel Orientation="Horizontal">
+                                                              FontSize="16"
+                                                              IsChecked="{Binding IsSelected,Mode=TwoWay}">
+                                                        </CheckBox>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </ScrollViewer>
+                                    <StackPanel Orientation="Horizontal" Margin="0,5,0,5" HorizontalAlignment="Center">
+                                        <Button Content="Deselect all" Background="Red" BorderBrush="Red" Margin="0,0,5,0" />
                                         <Button Content="Select all" />
-                                        <Button Content="Deselect all" />
                                     </StackPanel>
                                 </StackPanel>
-
-                                <StackPanel>
-                                    <TextBlock Style="{DynamicResource MaterialDesignTitleTextBlock}"
-                                               Text="Average product price"
-                                               HorizontalAlignment="Center" />
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBox
+                            </Expander>
+                            <Expander Header="Average product price">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,10">
+                                    <TextBox
+                                            FontSize="16" 
                                             materialDesign:HintAssist.Hint="From"
-                                            Style="{StaticResource MaterialDesignFloatingHintTextBox}" />
-                                        <Label Content=" : " />
-                                        <TextBox
+                                            Style="{StaticResource MaterialDesignFloatingHintTextBox}" Width="50"/>
+                                    <Label Content=" : " FontSize="16" VerticalAlignment="Bottom"/>
+                                    <TextBox FontSize="16"
                                             materialDesign:HintAssist.Hint="To"
-                                            Style="{StaticResource MaterialDesignFloatingHintTextBox}" />
-                                    </StackPanel>
+                                            Style="{StaticResource MaterialDesignFloatingHintTextBox}" Width="50"/>
                                 </StackPanel>
-                            </StackPanel>
-                        </ScrollViewer>
+                            </Expander>
+                            <Button Content="Generate" HorizontalAlignment="Center" Margin="5"/>
+                        </StackPanel>
+
 
                     </GroupBox>
                 </StackPanel>

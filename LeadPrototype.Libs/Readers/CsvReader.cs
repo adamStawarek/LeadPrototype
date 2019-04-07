@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -83,10 +84,10 @@ namespace LeadPrototype.Libs.Readers
                 }).ToDictionary(d => d.Item1, d => d.Item2);
                 return result;
             }
-            catch
+            catch(Exception e)
             {
                 Logger.Write(LogEventLevel.Warning,
-                    $"Exception occured when reading {filePath.Split('\\').Last()}");
+                    $"Exception occured when reading {filePath.Split('\\').Last()}, exception: {e.InnerException}");
                 return null;
             }
         }

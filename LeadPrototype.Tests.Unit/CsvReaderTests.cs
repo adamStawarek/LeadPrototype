@@ -43,6 +43,14 @@ namespace LeadPrototype.Tests.Unit
                 Assert.AreEqual(8,table.Count);
                 CollectionAssert.AreEquivalent(expected,table.Keys);
             });                       
-        }       
+        }  
+        
+        [Test]
+        public void ReadTable_No_Exception_Is_Thrown_When_Read_File_With_All_Products()
+        {
+            var settings = new CsvSettings("",@"../../../../Tmp/corelation_table.csv");
+            var reader = ReaderFactory.CreateReader(settings);
+            Assert.DoesNotThrow(()=>reader.ReadTable());                     
+        }  
     }
 }
