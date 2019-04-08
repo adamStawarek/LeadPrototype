@@ -18,7 +18,18 @@
         TextOptions.TextRenderingMode="Auto"
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}">
-
+    <Window.Resources>
+        <Style TargetType="{x:Type ListBoxItem}">
+            <Style.Triggers>
+                <Trigger  Property="ItemsControl.AlternationIndex" Value="0">
+                    <Setter Property="Background" Value="#FFFFC750"/>
+                </Trigger>
+                <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                    <Setter Property="Background" Value="#FFFF9850"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
     <DockPanel x:Name="Main" Background="{DynamicResource PrimaryHueLightBrush}">
         <materialDesign:ColorZone
             Mode="PrimaryDark"
@@ -36,8 +47,39 @@
             </Grid.ColumnDefinitions>
 
             <materialDesign:Card Grid.Column="0" Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                <Grid />
+                <Grid>
+                    <ListBox x:Name="Packets" ItemsSource="{Binding Packets}" AlternationCount="2" >
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel x:Name="WrapPanel" Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel HorizontalAlignment="Left" Orientation="Vertical">
 
+                                    <ItemsControl ItemsSource="{Binding Products}">
+
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel HorizontalAlignment="Left">
+                                                    <TextBlock Foreground="{DynamicResource PrimaryHueLightForegroundBrush}"
+                                                                   Text="{Binding ProductName}" FontSize="14" FontWeight="Bold"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                    <Label Foreground="{DynamicResource PrimaryHueLightForegroundBrush}" 
+                                               ContentStringFormat="Total price: {0}zł"
+                                               Content="{Binding TotalPrice}" FontSize="14" FontWeight="Bold"/>
+                                    <Label Foreground="{DynamicResource PrimaryHueLightForegroundBrush}" 
+                                           ContentStringFormat="Correlation value: {0}"
+                                           Content="{Binding Value}" FontSize="14" FontWeight="Bold"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
             </materialDesign:Card>
 
             <materialDesign:Card Grid.Column="1" Margin="10">
@@ -82,7 +124,7 @@
 
                     <StackPanel HorizontalAlignment="Center">
                         <Label FontSize="16" ContentStringFormat="Number of loaded products: {0}"
-                               Content="{Binding _products.Count,Mode=OneWay}" HorizontalAlignment="Center" />
+                               Content="{Binding Products.Count,Mode=OneWay}" HorizontalAlignment="Center" />
                     </StackPanel>
 
                     <GroupBox Header="Packets">
@@ -124,7 +166,7 @@
                                             Style="{StaticResource MaterialDesignFloatingHintTextBox}" Width="50"/>
                                 </StackPanel>
                             </Expander>
-                            <Button Content="Generate" HorizontalAlignment="Center" Margin="5"/>
+                            <Button Content="Generate" HorizontalAlignment="Center" Command="{Binding GeneratePacketsCommand}" Margin="5"/>
                         </StackPanel>
 
 
