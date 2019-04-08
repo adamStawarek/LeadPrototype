@@ -16,12 +16,36 @@ namespace ReportGenerator.ViewModel
 {
     public class MainViewModel : ViewModelBase
     {
-
-        private Dictionary<int, int[]> _table;    
-
+        private Dictionary<int, int[]> _table;
+      
         public List<Product> Products { get; set; }
         public List<Category> Categories { get; set; }
         public ObservableCollection<Packet> Packets { get; set; }
+        public PriceRange PriceRange { get; set; }=new PriceRange();
+
+        #region constraints
+        private bool _categoryConstraint;
+        public bool CategoryConstraint
+        {
+            get => _categoryConstraint;
+            set
+            {
+                _categoryConstraint = value;
+                RaisePropertyChanged("CategoryConstraint");
+            }
+        }
+
+        private bool _priceConstraint;
+        public bool PriceConstraint
+        {
+            get => _priceConstraint;
+            set
+            {
+                _priceConstraint = value;
+                RaisePropertyChanged("PriceConstraint");
+            }
+        }
+        #endregion
 
         public RelayCommand OpenFileCommand { get; }
         public RelayCommand<object> DropFileCommand { get; }
@@ -31,7 +55,7 @@ namespace ReportGenerator.ViewModel
         {
             OpenFileCommand = new RelayCommand(OpenFile);
             DropFileCommand = new RelayCommand<object>(DropFile);
-            Packets=new ObservableCollection<Packet>();
+            Packets = new ObservableCollection<Packet>();
             GeneratePacketsCommand = new RelayCommand(GeneratePackets);
             FetchProductsAndCategories();
         }
@@ -41,6 +65,19 @@ namespace ReportGenerator.ViewModel
             var packetFactory = new PacketBuilder()
                 .AddProducts(Products)
                 .AddCorrelationTable(_table);
+
+            if (CategoryConstraint)
+            {
+                var selectedCategories = Categories.Where(c => c.IsSelected);
+                packetFactory.AddPacketConstraint(p => selectedCategories.Any(c => c.CategoryId == p.CategoryId));
+            }
+
+            if (PriceConstraint)
+            {
+                packetFactory.AddPacketConstraint(p =>
+                    p.AveragePrice >= PriceRange.From && p.AveragePrice <= PriceRange.To);
+            }
+
             var packets = packetFactory.CreatePackets().OrderBy(p => p.prod1).ToList();
             Packets.Clear();
             foreach (var packet in packets)
@@ -49,7 +86,7 @@ namespace ReportGenerator.ViewModel
                 var prod2 = Products.FirstOrDefault(p => p.Id == packet.prod2);
                 Packets.Add(new Packet()
                 {
-                   Products = new []{prod1,prod2},
+                    Products = new[] { prod1, prod2 },
                     Value = packet.val
                 });
             }

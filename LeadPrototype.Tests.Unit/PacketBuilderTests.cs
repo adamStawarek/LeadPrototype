@@ -1,10 +1,10 @@
-using System.Collections.Generic;
-using System.Linq;
 using LeadPrototype.Libs;
 using LeadPrototype.Libs.Models;
 using LeadPrototype.Libs.Readers;
 using LeadPrototype.Libs.Readers.Settings;
 using NUnit.Framework;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace LeadPrototype.Tests.Unit
 {
@@ -20,6 +20,18 @@ namespace LeadPrototype.Tests.Unit
             var reader = ReaderFactory.CreateReader(settings);
             _products = reader.ReadObject().ToList();          
             _table = reader.ReadTable();
+        }
+
+        [Test]
+        public void When_Add_Constraint_Number_Of_Products_Is_Appropriate_Less()
+        {
+            var packetFactory = new PacketBuilder()
+                .AddProducts(_products);
+            var oldProductCount = packetFactory.GetProductsCount();
+            packetFactory.AddPacketConstraint(p => p.Id < 5);
+            var newProductCount = packetFactory.GetProductsCount();
+            var differenceCount = oldProductCount - newProductCount;
+            Assert.AreEqual(1,differenceCount);
         }
 
         [Test]

@@ -6,6 +6,7 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:command="http://www.galasoft.ch/mvvmlight"
+        xmlns:converters="clr-namespace:ReportGenerator.Converters"
         DataContext="{Binding Main, Source={StaticResource Locator}}"
         mc:Ignorable="d"
         Title="Report Generator" Height="650" Width="1000"
@@ -19,6 +20,7 @@
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}">
     <Window.Resources>
+        <converters:StringToDecimalConverter x:Key="StringToDecimalConverter"/>
         <Style TargetType="{x:Type ListBoxItem}">
             <Style.Triggers>
                 <Trigger  Property="ItemsControl.AlternationIndex" Value="0">
@@ -30,6 +32,7 @@
             </Style.Triggers>
         </Style>
     </Window.Resources>
+
     <DockPanel x:Name="Main" Background="{DynamicResource PrimaryHueLightBrush}">
         <materialDesign:ColorZone
             Mode="PrimaryDark"
@@ -57,9 +60,7 @@
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel HorizontalAlignment="Left" Orientation="Vertical">
-
                                     <ItemsControl ItemsSource="{Binding Products}">
-
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <StackPanel HorizontalAlignment="Left">
@@ -83,9 +84,7 @@
             </materialDesign:Card>
 
             <materialDesign:Card Grid.Column="1" Margin="10">
-
                 <StackPanel>
-
                     <Border Margin="15" BorderThickness="1,1,1,1">
                         <Border.BorderBrush>
                             <DrawingBrush TileMode="Tile" Viewport="0,0,8,8" ViewportUnits="Absolute">
@@ -132,8 +131,9 @@
                         <StackPanel>
                             <Expander Header="Categories">
                                 <StackPanel>
+                                    <CheckBox Content="Apply constraint" IsChecked="{Binding CategoryConstraint,Mode=TwoWay}"  FontSize="16"/>
                                     <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="220">
-                                        <ItemsControl Margin="10" ItemsSource="{Binding Categories}">
+                                        <ItemsControl Margin="10" ItemsSource="{Binding Categories}" IsEnabled="{Binding CategoryConstraint}">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
                                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
@@ -148,22 +148,24 @@
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>
                                     </ScrollViewer>
-                                    <StackPanel Orientation="Horizontal" Margin="0,5,0,5" HorizontalAlignment="Center">
-                                        <Button Content="Deselect all" Background="Red" BorderBrush="Red" Margin="0,0,5,0" />
-                                        <Button Content="Select all" />
-                                    </StackPanel>
                                 </StackPanel>
                             </Expander>
                             <Expander Header="Average product price">
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,10">
-                                    <TextBox
+                                <StackPanel>
+                                    <CheckBox Content="Apply constraint" IsChecked="{Binding PriceConstraint,Mode=TwoWay}"  FontSize="16"/>
+
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" IsEnabled="{Binding PriceConstraint}" Margin="0,0,0,10">
+                                        <TextBox
                                             FontSize="16" 
                                             materialDesign:HintAssist.Hint="From"
+                                            Text="{Binding PriceRange.From,Mode=TwoWay,StringFormat=0{0.0},Converter={StaticResource StringToDecimalConverter}}"
                                             Style="{StaticResource MaterialDesignFloatingHintTextBox}" Width="50"/>
-                                    <Label Content=" : " FontSize="16" VerticalAlignment="Bottom"/>
-                                    <TextBox FontSize="16"
+                                        <Label Content=" : " FontSize="16" VerticalAlignment="Bottom"/>
+                                        <TextBox FontSize="16"
                                             materialDesign:HintAssist.Hint="To"
+                                            Text="{Binding PriceRange.To,Mode=TwoWay,StringFormat=0{0.0},Converter={StaticResource StringToDecimalConverter}}"
                                             Style="{StaticResource MaterialDesignFloatingHintTextBox}" Width="50"/>
+                                    </StackPanel>
                                 </StackPanel>
                             </Expander>
                             <Button Content="Generate" HorizontalAlignment="Center" Command="{Binding GeneratePacketsCommand}" Margin="5"/>

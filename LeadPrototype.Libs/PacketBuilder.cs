@@ -41,14 +41,13 @@ namespace LeadPrototype.Libs
             return this;
         }
 
-
         public List<(int prod1, int prod2,int val)> CreatePackets()
         {
             if (!CheckIfProductsAndTableAreProvided()) return null;
             var packets = new List<(int prod1, int prod2, int val)>();
             try
             {               
-                foreach (var product in _products.Take(100))
+                foreach (var product in _products)
                 {
                     var values = _table.FirstOrDefault(t => t.Key == product.Id).Value.ToList();
                     var productIndex = Mapper.MapToIndex(product);
@@ -83,6 +82,11 @@ namespace LeadPrototype.Libs
             }
 
             return true;
+        }
+
+        public int? GetProductsCount()
+        {
+            return _products.Count;
         }
     }
 }
