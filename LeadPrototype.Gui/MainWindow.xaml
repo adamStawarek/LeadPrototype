@@ -7,9 +7,10 @@
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
         xmlns:command="http://www.galasoft.ch/mvvmlight"
         xmlns:converters="clr-namespace:ReportGenerator.Converters"
+        xmlns:fa="http://schemas.fontawesome.io/icons/"
         DataContext="{Binding Main, Source={StaticResource Locator}}"
         mc:Ignorable="d"
-        Title="Report Generator" Height="650" Width="1000"
+        Title="Packet Generator" Height="650" Width="1100"
         ResizeMode="CanMinimize"
         WindowStartupLocation="CenterScreen"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
@@ -45,12 +46,14 @@
         <Grid DockPanel.Dock="Bottom" Margin="10">
 
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1.2*" />
+                <ColumnDefinition Width="1.4*" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <materialDesign:Card Grid.Column="0" Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <Grid>
+                    <fa:ImageAwesome Icon="Spinner" Visibility="{Binding SpinnerVisibility}" Foreground="{DynamicResource PrimaryHueDarkBrush}"
+                                     HorizontalAlignment="Center" VerticalAlignment="Center" Spin="True" Height="80" Width="80" />
                     <ListBox x:Name="Packets" ItemsSource="{Binding Packets}" AlternationCount="2" >
                         <ListBox.ItemsPanel>
                             <ItemsPanelTemplate>

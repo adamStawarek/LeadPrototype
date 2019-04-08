@@ -10,18 +10,30 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace ReportGenerator.ViewModel
 {
     public class MainViewModel : ViewModelBase
     {
         private Dictionary<int, int[]> _table;
-      
+
+        private Visibility _spinnerVisibility = Visibility.Hidden;
+        public Visibility SpinnerVisibility
+        {
+            get => _spinnerVisibility;
+            set
+            {
+                _spinnerVisibility = value;
+                RaisePropertyChanged("SpinnerVisibility");
+            }
+        }
         public List<Product> Products { get; set; }
         public List<Category> Categories { get; set; }
         public ObservableCollection<Packet> Packets { get; set; }
-        public PriceRange PriceRange { get; set; }=new PriceRange();
+        public PriceRange PriceRange { get; set; } = new PriceRange();
 
         #region constraints
         private bool _categoryConstraint;
@@ -104,16 +116,16 @@ namespace ReportGenerator.ViewModel
             }).ToList();
         }
 
-        private void DropFile(object p)
+        private async void DropFile(object p)
         {
             var e = p as DragEventArgs;
             if (e != null && !e.Data.GetDataPresent(DataFormats.FileDrop)) return;
             var files = (string[])e.Data.GetData(DataFormats.FileDrop);
             if (files == null) return;
-            FetchCorrelationTable(files.FirstOrDefault());
+            _table = await FetchCorrelationTable(files.FirstOrDefault());
         }
 
-        private void OpenFile()
+        private async void OpenFile()
         {
             var openFileDialog = new OpenFileDialog
             {
@@ -122,23 +134,38 @@ namespace ReportGenerator.ViewModel
             };
             if (openFileDialog.ShowDialog() != true) return;
 
-            FetchCorrelationTable(openFileDialog.FileName);
+            _table = await FetchCorrelationTable(openFileDialog.FileName);
         }
 
-        private void FetchCorrelationTable(string file)
+        private async Task<Dictionary<int, int[]>> FetchCorrelationTable(string file)
         {
-            var settings = new CsvSettings("", file);
-            var reader = ReaderFactory.CreateReader(settings);
-            try
+            SpinnerVisibility = Visibility.Visible;
+            var tmpTable = new Dictionary<int, int[]>();
+            await Task.Run(delegate
             {
-                _table = reader.ReadTable();
-                MessageBox.Show(
-                    $"Sucesfully loadded table from {file.Split('\\').Last()}, number of rows: {_table.Count}");
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show($"Exception occured when reading {file.Split('\\').Last()}, exception: {e.InnerException}");
-            }
+                try
+                {
+                    var settings = new CsvSettings("", file);
+                    var reader = ReaderFactory.CreateReader(settings);
+
+                    tmpTable = reader.ReadTable();
+                    Dispatcher.CurrentDispatcher.Invoke(() =>
+                    {
+                        SpinnerVisibility = Visibility.Hidden;
+                        MessageBox.Show($"Sucesfully loadded table from {file.Split('\\').Last()}, number of rows: {tmpTable?.Count}");
+                    });
+                }
+                catch (Exception e)
+                {
+                    Dispatcher.CurrentDispatcher.Invoke(() =>
+                    {
+                        SpinnerVisibility = Visibility.Hidden;
+                        MessageBox.Show($"Exception occured when reading {file.Split('\\').Last()}, exception: {e.InnerException}");
+                    });
+                }
+            });
+           
+            return tmpTable;
 
         }
 
