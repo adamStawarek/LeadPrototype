@@ -34,6 +34,7 @@ namespace ReportGenerator.ViewModel
         }
         public List<Product> Products { get; set; }
         public List<Category> Categories { get; set; }
+        public ObservableCollection<FileViewModel> Files { get; set; }
         public ObservableCollection<Packet> Packets { get; set; }
         public PriceRange PriceRange { get; set; } = new PriceRange();
 
@@ -64,6 +65,7 @@ namespace ReportGenerator.ViewModel
         public RelayCommand OpenFileCommand { get; }
         public RelayCommand<object> DropFileCommand { get; }
         public RelayCommand GeneratePacketsCommand { get; set; }
+        public RelayCommand ReadFilesCommand { get; set; }
 
         public MainViewModel()
         {
@@ -71,6 +73,8 @@ namespace ReportGenerator.ViewModel
             DropFileCommand = new RelayCommand<object>(DropFiles);
             Packets = new ObservableCollection<Packet>();
             GeneratePacketsCommand = new RelayCommand(GeneratePackets);
+            ReadFilesCommand = new RelayCommand(ReadFiles);
+            Files = new ObservableCollection<FileViewModel>();
             FetchProductsAndCategories();
         }
 
@@ -111,7 +115,7 @@ namespace ReportGenerator.ViewModel
             {
                 Debug.WriteLine($"Something wrong: {e.InnerException}");
             }
-            
+
         }
 
         private void FetchProductsAndCategories()
@@ -126,31 +130,16 @@ namespace ReportGenerator.ViewModel
             }).ToList();
         }
 
-        private async void DropFiles(object p)
+        private void DropFiles(object p)
         {
             var e = p as DragEventArgs;
             if (e != null && !e.Data.GetDataPresent(DataFormats.FileDrop)) return;
             var files = (string[])e.Data.GetData(DataFormats.FileDrop);
             if (files == null) return;
-            if(files.Length<1)
-                throw new Exception("No file chosen");
-            else if (files.Length==1)
-            {
-                if(CorrelationTable==null)
-                    CorrelationTable = await FetchTable(files[0],TableType.Correlation);
-                else
-                {
-                    SubstituesTable = await FetchTable(files[0], TableType.Substitutes);
-                }
-            }
-            else if (files.Length >= 1)
-            {
-                CorrelationTable = await FetchTable(files[0], TableType.Correlation);
-                SubstituesTable = await FetchTable(files[1], TableType.Substitutes);
-            }           
+            files.ToList().ForEach(f => Files.Add(new FileViewModel(f)));      
         }
 
-        private async void OpenFiles()
+        private void OpenFiles()
         {
             var openFileDialog = new OpenFileDialog
             {
@@ -160,29 +149,24 @@ namespace ReportGenerator.ViewModel
             if (openFileDialog.ShowDialog() != true) return;
 
             var files = openFileDialog.FileNames;
-            if (files.Length < 1)
-                throw new Exception("No file chosen");
-            else if (files.Length == 1)
-            {
-                if (CorrelationTable == null)
-                    CorrelationTable = await FetchTable(files[0], TableType.Correlation);
-                else
-                {
-                    SubstituesTable = await FetchTable(files[0], TableType.Substitutes);
-                }
-            }
-            else if (files.Length >= 1)
-            {
-                CorrelationTable = await FetchTable(files[0], TableType.Correlation);
-                SubstituesTable = await FetchTable(files[1], TableType.Substitutes);
-            }
+            files.ToList().ForEach(f => Files.Add(new FileViewModel(f)));
+
         }
 
-        private async Task<Table> FetchTable(string file,TableType type)
+        private async void ReadFiles()
         {
-            Table tmpTable=null;
-
+            CorrelationTable = SubstituesTable = null;
+            var correlationFile = Files.First(f => f.IsCorrelationTable).FilePath;
+            var substituesFile = Files.First(f => f.IsSubstitutesTable).FilePath;
             SpinnerVisibility = Visibility.Visible;
+            CorrelationTable = await FetchTable(correlationFile, TableType.Correlation);
+            SubstituesTable = await FetchTable(substituesFile, TableType.Substitutes);
+            SpinnerVisibility = Visibility.Hidden;
+        }
+
+        private async Task<Table> FetchTable(string file, TableType type)
+        {
+            Table tmpTable = null;
             await Task.Run(delegate
             {
                 try
@@ -192,11 +176,10 @@ namespace ReportGenerator.ViewModel
 
                     tmpTable = reader.ReadTable(type);
                     Dispatcher.CurrentDispatcher.Invoke(() =>
-                    {
-                        SpinnerVisibility = Visibility.Hidden;
+                    {                      
                         MessageBox.Show($"Sucesfully loadded table from {file.Split('\\').Last()}, number of rows: {tmpTable.Content.Count}");
                     });
-                   
+
                 }
                 catch (Exception e)
                 {
@@ -205,7 +188,7 @@ namespace ReportGenerator.ViewModel
                         SpinnerVisibility = Visibility.Hidden;
                         MessageBox.Show($"Exception occured when reading {file.Split('\\').Last()}, exception: {e.InnerException}");
                     });
-                    
+
                 }
             });
             return tmpTable;

@@ -132,10 +132,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters\BoolInverseConverter.cs" />
     <Compile Include="Converters\StringToDecimalConverter.cs" />
     <Compile Include="Models\Category.cs" />
     <Compile Include="Models\Packet.cs" />
     <Compile Include="Models\PriceRange.cs" />
+    <Compile Include="Models\FileViewModel.cs" />
+    <Compile Include="Properties\Annotations.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Page Include="MainWindow.xaml">
