@@ -68,7 +68,7 @@ namespace LeadPrototype.Libs.Readers
             return false;
         }
 
-        public override Dictionary<int, int[]> ReadTable()
+        public override Dictionary<int, float[]> ReadTable()
         {
             var filePath = ((CsvSettings) Settings).PathToProductsTable;
             if (!CheckFilePath(filePath)) return null;
@@ -79,7 +79,7 @@ namespace LeadPrototype.Libs.Readers
                 var result = lines.AsParallel().AsOrdered().Select((line, index) =>
                 {
                    // Logger.Write(LogEventLevel.Information, $"parse {index} table row");
-                    var values = line?.Split(',').Where(v => !string.IsNullOrEmpty(v)).Select(int.Parse).ToArray();
+                    var values = line?.Split(',').Where(v => !string.IsNullOrEmpty(v)).Select(f=>f.Replace('.',',')).Select(float.Parse).ToArray();
                     return (Mapper.MapToProduct(index).Id, values);
                 }).ToDictionary(d => d.Item1, d => d.Item2);
                 return result;

@@ -11,7 +11,7 @@ namespace LeadPrototype.Libs
     public class PacketBuilder
     {
         private List<Product> _products;
-        private Dictionary<int, int[]> _table;
+        private Dictionary<int, float[]> _table;
         private readonly ILogger _logger;
 
         public PacketBuilder()
@@ -29,7 +29,7 @@ namespace LeadPrototype.Libs
             return this;
         }
 
-        public PacketBuilder AddCorrelationTable(Dictionary<int, int[]> table)
+        public PacketBuilder AddCorrelationTable(Dictionary<int, float[]> table)
         {
             _table = table;
             return this;
@@ -41,10 +41,10 @@ namespace LeadPrototype.Libs
             return this;
         }
 
-        public List<(int prod1, int prod2,int val)> CreatePackets()
+        public List<(int prod1, int prod2,float val)> CreatePackets()
         {
             if (!CheckIfProductsAndTableAreProvided()) return null;
-            var packets = new List<(int prod1, int prod2, int val)>();
+            var packets = new List<(int prod1, int prod2, float val)>();
             try
             {               
                 foreach (var product in _products)

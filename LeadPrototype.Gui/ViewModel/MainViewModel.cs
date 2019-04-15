@@ -9,6 +9,7 @@ using ReportGenerator.Models;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -18,7 +19,7 @@ namespace ReportGenerator.ViewModel
 {
     public class MainViewModel : ViewModelBase
     {
-        private Dictionary<int, int[]> _table;
+        private Dictionary<int, float[]> _table;
 
         private Visibility _spinnerVisibility = Visibility.Hidden;
         public Visibility SpinnerVisibility
@@ -90,18 +91,26 @@ namespace ReportGenerator.ViewModel
                     p.AveragePrice >= PriceRange.From && p.AveragePrice <= PriceRange.To);
             }
 
-            var packets = packetFactory.CreatePackets().OrderBy(p => p.prod1).ToList();
-            Packets.Clear();
-            foreach (var packet in packets)
+            try
             {
-                var prod1 = Products.FirstOrDefault(p => p.Id == packet.prod1);
-                var prod2 = Products.FirstOrDefault(p => p.Id == packet.prod2);
-                Packets.Add(new Packet()
+                var packets = packetFactory.CreatePackets().OrderBy(p => p.prod1).ToList();
+                Packets.Clear();
+                foreach (var packet in packets)
                 {
-                    Products = new[] { prod1, prod2 },
-                    Value = packet.val
-                });
+                    var prod1 = Products.FirstOrDefault(p => p.Id == packet.prod1);
+                    var prod2 = Products.FirstOrDefault(p => p.Id == packet.prod2);
+                    Packets.Add(new Packet()
+                    {
+                        Products = new[] { prod1, prod2 },
+                        Value = packet.val
+                    });
+                }
             }
+            catch (Exception e)
+            {
+                Debug.WriteLine($"Something wrong: {e.InnerException}");
+            }
+            
         }
 
         private void FetchProductsAndCategories()
@@ -137,10 +146,10 @@ namespace ReportGenerator.ViewModel
             _table = await FetchCorrelationTable(openFileDialog.FileName);
         }
 
-        private async Task<Dictionary<int, int[]>> FetchCorrelationTable(string file)
+        private async Task<Dictionary<int, float[]>> FetchCorrelationTable(string file)
         {
             SpinnerVisibility = Visibility.Visible;
-            var tmpTable = new Dictionary<int, int[]>();
+            var tmpTable = new Dictionary<int, float[]>();
             await Task.Run(delegate
             {
                 try
