@@ -8,6 +8,6 @@ namespace LeadPrototype.Libs.Readers
     {
         IReaderSettings Settings { get; set; }
         IEnumerable<Product> ReadObject();
-        Dictionary<int, float[]> ReadTable();
+        Table ReadTable(TableType type);
     }
 }

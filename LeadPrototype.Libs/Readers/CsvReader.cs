@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -60,7 +61,7 @@ namespace LeadPrototype.Libs.Readers
                 return null;
             }
         }
-
+      
         private bool CheckFilePath(string filePath)
         {
             if (filePath.EndsWith(".csv") && File.Exists(filePath)) return true;
@@ -68,9 +69,9 @@ namespace LeadPrototype.Libs.Readers
             return false;
         }
 
-        public override Dictionary<int, float[]> ReadTable()
+        public override Table ReadTable(TableType type)
         {
-            var filePath = ((CsvSettings) Settings).PathToProductsTable;
+            var filePath = ((CsvSettings)Settings).PathToTable;
             if (!CheckFilePath(filePath)) return null;
 
             try
@@ -78,13 +79,23 @@ namespace LeadPrototype.Libs.Readers
                 var lines = File.ReadAllLines(filePath).ToList();
                 var result = lines.AsParallel().AsOrdered().Select((line, index) =>
                 {
-                   // Logger.Write(LogEventLevel.Information, $"parse {index} table row");
-                    var values = line?.Split(',').Where(v => !string.IsNullOrEmpty(v)).Select(f=>f.Replace('.',',')).Select(float.Parse).ToArray();
+                    // Logger.Write(LogEventLevel.Information, $"parse {index} table row");
+                    var values = line?.Split(',').Where(v => !string.IsNullOrEmpty(v)).Select(f => f.Replace('.', ',')).Select(float.Parse).ToArray();
                     return (Mapper.MapToProduct(index).Id, values);
                 }).ToDictionary(d => d.Item1, d => d.Item2);
-                return result;
+
+                switch (type)
+                {
+                    case TableType.Correlation:
+                        return new CorrelationTable() { Content = result };
+                    case TableType.Substitutes:
+                        return new SubstitutesTable(){Content = result};
+                    default:
+                        throw new InvalidEnumArgumentException();
+                }
+               
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Logger.Write(LogEventLevel.Warning,
                     $"Exception occured when reading {filePath.Split('\\').Last()}, exception: {e.InnerException}");

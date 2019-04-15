@@ -16,6 +16,6 @@ namespace LeadPrototype.Libs.Readers
             Settings = settings;
         }     
         public abstract IEnumerable<Product> ReadObject();
-        public abstract Dictionary<int, float[]> ReadTable();
+        public abstract Table ReadTable(TableType type);
     }
 }

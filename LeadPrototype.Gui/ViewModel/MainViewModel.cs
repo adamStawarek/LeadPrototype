@@ -19,7 +19,8 @@ namespace ReportGenerator.ViewModel
 {
     public class MainViewModel : ViewModelBase
     {
-        private Dictionary<int, float[]> _table;
+        public Table CorrelationTable { get; set; }
+        public Table SubstituesTable { get; set; }
 
         private Visibility _spinnerVisibility = Visibility.Hidden;
         public Visibility SpinnerVisibility
@@ -66,8 +67,8 @@ namespace ReportGenerator.ViewModel
 
         public MainViewModel()
         {
-            OpenFileCommand = new RelayCommand(OpenFile);
-            DropFileCommand = new RelayCommand<object>(DropFile);
+            OpenFileCommand = new RelayCommand(OpenFiles);
+            DropFileCommand = new RelayCommand<object>(DropFiles);
             Packets = new ObservableCollection<Packet>();
             GeneratePacketsCommand = new RelayCommand(GeneratePackets);
             FetchProductsAndCategories();
@@ -77,7 +78,7 @@ namespace ReportGenerator.ViewModel
         {
             var packetFactory = new PacketBuilder()
                 .AddProducts(Products)
-                .AddCorrelationTable(_table);
+                .AddCorrelationTable(CorrelationTable as CorrelationTable);
 
             if (CategoryConstraint)
             {
@@ -125,31 +126,63 @@ namespace ReportGenerator.ViewModel
             }).ToList();
         }
 
-        private async void DropFile(object p)
+        private async void DropFiles(object p)
         {
             var e = p as DragEventArgs;
             if (e != null && !e.Data.GetDataPresent(DataFormats.FileDrop)) return;
             var files = (string[])e.Data.GetData(DataFormats.FileDrop);
             if (files == null) return;
-            _table = await FetchCorrelationTable(files.FirstOrDefault());
+            if(files.Length<1)
+                throw new Exception("No file chosen");
+            else if (files.Length==1)
+            {
+                if(CorrelationTable==null)
+                    CorrelationTable = await FetchTable(files[0],TableType.Correlation);
+                else
+                {
+                    SubstituesTable = await FetchTable(files[0], TableType.Substitutes);
+                }
+            }
+            else if (files.Length >= 1)
+            {
+                CorrelationTable = await FetchTable(files[0], TableType.Correlation);
+                SubstituesTable = await FetchTable(files[1], TableType.Substitutes);
+            }           
         }
 
-        private async void OpenFile()
+        private async void OpenFiles()
         {
             var openFileDialog = new OpenFileDialog
             {
-                Multiselect = false,
+                Multiselect = true,
                 Filter = "Csv file|*.csv;"
             };
             if (openFileDialog.ShowDialog() != true) return;
 
-            _table = await FetchCorrelationTable(openFileDialog.FileName);
+            var files = openFileDialog.FileNames;
+            if (files.Length < 1)
+                throw new Exception("No file chosen");
+            else if (files.Length == 1)
+            {
+                if (CorrelationTable == null)
+                    CorrelationTable = await FetchTable(files[0], TableType.Correlation);
+                else
+                {
+                    SubstituesTable = await FetchTable(files[0], TableType.Substitutes);
+                }
+            }
+            else if (files.Length >= 1)
+            {
+                CorrelationTable = await FetchTable(files[0], TableType.Correlation);
+                SubstituesTable = await FetchTable(files[1], TableType.Substitutes);
+            }
         }
 
-        private async Task<Dictionary<int, float[]>> FetchCorrelationTable(string file)
+        private async Task<Table> FetchTable(string file,TableType type)
         {
+            Table tmpTable=null;
+
             SpinnerVisibility = Visibility.Visible;
-            var tmpTable = new Dictionary<int, float[]>();
             await Task.Run(delegate
             {
                 try
@@ -157,12 +190,13 @@ namespace ReportGenerator.ViewModel
                     var settings = new CsvSettings("", file);
                     var reader = ReaderFactory.CreateReader(settings);
 
-                    tmpTable = reader.ReadTable();
+                    tmpTable = reader.ReadTable(type);
                     Dispatcher.CurrentDispatcher.Invoke(() =>
                     {
                         SpinnerVisibility = Visibility.Hidden;
-                        MessageBox.Show($"Sucesfully loadded table from {file.Split('\\').Last()}, number of rows: {tmpTable?.Count}");
+                        MessageBox.Show($"Sucesfully loadded table from {file.Split('\\').Last()}, number of rows: {tmpTable.Content.Count}");
                     });
+                   
                 }
                 catch (Exception e)
                 {
@@ -171,12 +205,10 @@ namespace ReportGenerator.ViewModel
                         SpinnerVisibility = Visibility.Hidden;
                         MessageBox.Show($"Exception occured when reading {file.Split('\\').Last()}, exception: {e.InnerException}");
                     });
+                    
                 }
             });
-           
             return tmpTable;
-
         }
-
     }
 }

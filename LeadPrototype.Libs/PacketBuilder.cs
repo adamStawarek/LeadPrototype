@@ -11,7 +11,8 @@ namespace LeadPrototype.Libs
     public class PacketBuilder
     {
         private List<Product> _products;
-        private Dictionary<int, float[]> _table;
+        private CorrelationTable _correlationTable;
+        private SubstitutesTable _substitutesTable;
         private readonly ILogger _logger;
 
         public PacketBuilder()
@@ -29,9 +30,15 @@ namespace LeadPrototype.Libs
             return this;
         }
 
-        public PacketBuilder AddCorrelationTable(Dictionary<int, float[]> table)
+        public PacketBuilder AddCorrelationTable(CorrelationTable table)
         {
-            _table = table;
+            _correlationTable = table;
+            return this;
+        }
+
+        public PacketBuilder AddSubstitutesTable(SubstitutesTable table)
+        {
+            _substitutesTable = table;
             return this;
         }
 
@@ -43,13 +50,13 @@ namespace LeadPrototype.Libs
 
         public List<(int prod1, int prod2,float val)> CreatePackets()
         {
-            if (!CheckIfProductsAndTableAreProvided()) return null;
+            if (!CheckIfProductsAndTableAreProvided(TableType.Correlation)) return null;
             var packets = new List<(int prod1, int prod2, float val)>();
             try
             {               
                 foreach (var product in _products)
                 {
-                    var values = _table.FirstOrDefault(t => t.Key == product.Id).Value.ToList();
+                    var values = _correlationTable.Content.FirstOrDefault(t => t.Key == product.Id).Value.ToList();
                     var productIndex = Mapper.MapToIndex(product);
                     values[productIndex] = -1;
                     var max = values.Max();
@@ -67,11 +74,17 @@ namespace LeadPrototype.Libs
             } return packets.OrderByDescending(p => p.val).ToList();
         }
 
-        private bool CheckIfProductsAndTableAreProvided()
+        private bool CheckIfProductsAndTableAreProvided(TableType type)
         {
-            if (_table == null || _table.Count < 1)
+            if (type==TableType.Correlation&&(_correlationTable== null || _correlationTable.Content.Count < 1))
             {
                 _logger.Write(LogEventLevel.Error, "no correlation table provided");
+                return false;
+            }
+
+            if (type==TableType.Substitutes&&(_substitutesTable == null || _substitutesTable.Content.Count < 1))
+            {
+                _logger.Write(LogEventLevel.Error, "no substitute table provided");
                 return false;
             }
 

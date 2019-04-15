@@ -11,7 +11,7 @@ namespace LeadPrototype.Tests.Unit
     public class PacketBuilderTests
     {
         private List<Product> _products;
-        private Dictionary<int, int[]> _table;
+        private Table _table;
 
         [SetUp]
         public void SetUp()
@@ -19,7 +19,7 @@ namespace LeadPrototype.Tests.Unit
             var settings = new CsvSettings(@"../../../Tmp/products.csv", @"../../../Tmp/products_corr_no_header.csv");
             var reader = ReaderFactory.CreateReader(settings);
             _products = reader.ReadObject().ToList();          
-            _table = reader.ReadTable();
+            _table = reader.ReadTable(TableType.Correlation);
         }
 
         [Test]
@@ -39,7 +39,7 @@ namespace LeadPrototype.Tests.Unit
         {
             var packetFactory=new PacketBuilder()
                 .AddProducts(_products)
-                .AddCorrelationTable(_table);
+                .AddCorrelationTable(_table as CorrelationTable);
             var packets=packetFactory.CreatePackets().OrderBy(p=>p.prod1).ToList();
             Assert.Multiple(() =>
             {

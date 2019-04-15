@@ -2,13 +2,13 @@ namespace LeadPrototype.Libs.Readers.Settings
 {
     public class CsvSettings : IReaderSettings
     {
-        public CsvSettings(string pathToProducts,string pathToProductsTable)
+        public CsvSettings(string pathToProducts,string pathToTable)
         {
             PathToProducts = pathToProducts;
-            PathToProductsTable = pathToProductsTable;
+            PathToTable = pathToTable;
         }
 
         public string PathToProducts { get; private set; }
-        public string PathToProductsTable { get; set; }
+        public string PathToTable { get; set; }
     }
 }

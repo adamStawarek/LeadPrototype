@@ -37,11 +37,11 @@ namespace LeadPrototype.Tests.Unit
             var settings = new CsvSettings("",@"../../../Tmp/products_corr_no_header.csv");
             var expected = new List<int> {1, 3, 4, 5, 6, 8, 9, 10};
             var reader = ReaderFactory.CreateReader(settings);
-            var table = reader.ReadTable();
+            var table = reader.ReadTable(TableType.Correlation);
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(8,table.Count);
-                CollectionAssert.AreEquivalent(expected,table.Keys);
+                Assert.AreEqual(8,table.Content.Count);
+                CollectionAssert.AreEquivalent(expected,table.Content.Keys);
             });                       
         }  
         
@@ -50,7 +50,7 @@ namespace LeadPrototype.Tests.Unit
         {
             var settings = new CsvSettings("",@"../../../../Tmp/corelation_table.csv");
             var reader = ReaderFactory.CreateReader(settings);
-            Assert.DoesNotThrow(()=>reader.ReadTable());                     
+            Assert.DoesNotThrow(()=>reader.ReadTable(TableType.Correlation));                     
         }  
     }
 }
