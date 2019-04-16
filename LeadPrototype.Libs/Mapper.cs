@@ -3,6 +3,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using LeadPrototype.Libs.Models;
+using LeadPrototype.Libs.Readers;
+using LeadPrototype.Libs.Readers.Settings;
 
 namespace LeadPrototype.Libs
 {
@@ -17,23 +19,11 @@ namespace LeadPrototype.Libs
 
         private static Product[] FetchProducts()
         {
-            var products = new List<Product>();
-            using (var reader =
-                new StreamReader(@"C:\Users\adams\RiderProjects\LeadPrototype\Tmp\corr_map.csv", Encoding.Default, true))
-            {
-                while (!reader.EndOfStream)
-                {
-                    var line = reader.ReadLine();
-                    var values = line?.Split(',');
-                    if (values == null) continue;
-                    products.Add(new Product()
-                    {
-                        Id = int.Parse(values[0])
-                    });
-                }
-            }
 
-            return products.ToArray();
+            var settings = new CsvSettings(@"C:\Users\adams\RiderProjects\LeadPrototype\Tmp\products.csv", "");
+            var reader = ReaderFactory.CreateReader(settings);
+            var products = reader.ReadProducts().ToArray();            
+            return products;
         }
 
         public static Product MapToProduct(int index) 

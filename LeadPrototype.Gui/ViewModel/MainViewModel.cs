@@ -19,10 +19,19 @@ namespace ReportGenerator.ViewModel
 {
     public class MainViewModel : ViewModelBase
     {
+
+        #region properties
         public Table CorrelationTable { get; set; }
         public Table SubstituesTable { get; set; }
+        public List<Product> Products { get; set; }
+        public List<CategoryViewModel> Categories { get; set; }
+        public ObservableCollection<FileViewModel> Files { get; set; }
+        public ObservableCollection<Packet> Packets { get; set; }
+        public PriceRange PriceRange { get; set; }
+        #endregion
 
-        private Visibility _spinnerVisibility = Visibility.Hidden;
+        #region computed properties
+        private Visibility _spinnerVisibility;
         public Visibility SpinnerVisibility
         {
             get => _spinnerVisibility;
@@ -32,11 +41,7 @@ namespace ReportGenerator.ViewModel
                 RaisePropertyChanged("SpinnerVisibility");
             }
         }
-        public List<Product> Products { get; set; }
-        public List<Category> Categories { get; set; }
-        public ObservableCollection<FileViewModel> Files { get; set; }
-        public ObservableCollection<Packet> Packets { get; set; }
-        public PriceRange PriceRange { get; set; } = new PriceRange();
+        #endregion
 
         #region constraints
         private bool _categoryConstraint;
@@ -62,19 +67,25 @@ namespace ReportGenerator.ViewModel
         }
         #endregion
 
+        #region commands
         public RelayCommand OpenFileCommand { get; }
         public RelayCommand<object> DropFileCommand { get; }
         public RelayCommand GeneratePacketsCommand { get; set; }
         public RelayCommand ReadFilesCommand { get; set; }
+        #endregion
 
         public MainViewModel()
         {
             OpenFileCommand = new RelayCommand(OpenFiles);
             DropFileCommand = new RelayCommand<object>(DropFiles);
-            Packets = new ObservableCollection<Packet>();
             GeneratePacketsCommand = new RelayCommand(GeneratePackets);
             ReadFilesCommand = new RelayCommand(ReadFiles);
+
             Files = new ObservableCollection<FileViewModel>();
+            Packets = new ObservableCollection<Packet>();
+            PriceRange = new PriceRange();
+            SpinnerVisibility = Visibility.Hidden;
+
             FetchProductsAndCategories();
         }
 
@@ -98,18 +109,18 @@ namespace ReportGenerator.ViewModel
 
             try
             {
-                var packets = packetFactory.CreatePackets().OrderBy(p => p.prod1).ToList();
-                Packets.Clear();
-                foreach (var packet in packets)
-                {
-                    var prod1 = Products.FirstOrDefault(p => p.Id == packet.prod1);
-                    var prod2 = Products.FirstOrDefault(p => p.Id == packet.prod2);
-                    Packets.Add(new Packet()
-                    {
-                        Products = new[] { prod1, prod2 },
-                        Value = packet.val
-                    });
-                }
+                //var packets = packetFactory.CreatePackets().OrderBy(p => p.prod1).ToList();
+                //Packets.Clear();
+                //foreach (var packet in packets)
+                //{
+                //    var prod1 = Products.FirstOrDefault(p => p.Id == packet.prod1);
+                //    var prod2 = Products.FirstOrDefault(p => p.Id == packet.prod2);
+                //    Packets.Add(new Packet()
+                //    {
+                //        Products = new[] { prod1, prod2 },
+                //        Value = packet.val
+                //    });
+                //}
             }
             catch (Exception e)
             {
@@ -122,21 +133,21 @@ namespace ReportGenerator.ViewModel
         {
             var settings = new CsvSettings(@"../../../Tmp/products.csv", "");
             var reader = ReaderFactory.CreateReader(settings);
-            Products = reader.ReadObject().ToList();
-            Categories = Products.GroupBy(x => new { x.CategoryId, x.CategoryName }).Select(p => new Category()
+            Products = reader.ReadProducts().ToList();
+            Categories = Products.GroupBy(x => new { x.CategoryId, x.CategoryName }).Select(p => new CategoryViewModel()
             {
                 CategoryId = p.Key.CategoryId,
                 CategoryName = p.Key.CategoryName
             }).ToList();
         }
 
-        private void DropFiles(object p)
+        private void DropFiles(object eventArgs)
         {
-            var e = p as DragEventArgs;
+            var e = eventArgs as DragEventArgs;
             if (e != null && !e.Data.GetDataPresent(DataFormats.FileDrop)) return;
             var files = (string[])e.Data.GetData(DataFormats.FileDrop);
             if (files == null) return;
-            files.ToList().ForEach(f => Files.Add(new FileViewModel(f)));      
+            files.ToList().ForEach(f => Files.Add(new FileViewModel(f)));
         }
 
         private void OpenFiles()
@@ -176,7 +187,7 @@ namespace ReportGenerator.ViewModel
 
                     tmpTable = reader.ReadTable(type);
                     Dispatcher.CurrentDispatcher.Invoke(() =>
-                    {                      
+                    {
                         MessageBox.Show($"Sucesfully loadded table from {file.Split('\\').Last()}, number of rows: {tmpTable.Content.Count}");
                     });
 

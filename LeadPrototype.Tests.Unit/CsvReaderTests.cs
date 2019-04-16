@@ -10,7 +10,7 @@ namespace LeadPrototype.Tests.Unit
     public class CsvReaderTests
     {
         [Test]
-        public void ReadObject_Returns_Collection_Of_3_Products()
+        public void ReadProducts_Returns_Collection_Of_3_Products()
         {
             var settings = new CsvSettings(@"../../../Tmp/products.csv","");
             var reader = ReaderFactory.CreateReader(settings);
@@ -19,14 +19,15 @@ namespace LeadPrototype.Tests.Unit
                 new Product(){Id=1, ProductName = "Piwo specjalne butelka 149",CategoryId = 13,CategoryName = "Piwo",AveragePrice = 3.46m},
                 new Product(){Id=3, ProductName = "Piwo jasne premium butelka 89",CategoryId = 13,CategoryName = "Piwo",AveragePrice = 2.55m},
                 new Product(){Id=4, ProductName = "Fast-food pozostałe 39",CategoryId = 6,CategoryName = "Żabka Cafe",AveragePrice = 4.97m},
-                new Product(){Id=5, ProductName = "Warzywa, owoce, rośliny REG 258",CategoryId = 18,CategoryName = "Warzywa & Owoce & Rośliny",AveragePrice = 7.26m}
+                new Product(){Id=5, ProductName = "Warzywa, owoce, rośliny REG 258",CategoryId = 18,CategoryName = "Warzywa & Owoce & Rośliny",AveragePrice = 7.26m},
+                new Product(){Id= 6, ProductName= "Konserwy mięsne 980", CategoryId= 2, CategoryName= "Artykuły spożywcze", AveragePrice= 5.49m}
             };
             
-             var actual = reader.ReadObject().ToList();
+             var actual = reader.ReadProducts().ToList();
              
             Assert.Multiple(() =>
             {              
-                Assert.AreEqual(4, actual.Count());
+                Assert.AreEqual(5, actual.Count());
                 CollectionAssert.AreEquivalent(expected, actual);
             });
         }
@@ -46,6 +47,7 @@ namespace LeadPrototype.Tests.Unit
         }  
         
         [Test]
+        [Ignore("Big file, takes too much time to complete")]
         public void ReadTable_No_Exception_Is_Thrown_When_Read_File_With_All_Products()
         {
             var settings = new CsvSettings("",@"../../../../Tmp/corelation_table.csv");

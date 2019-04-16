@@ -7,7 +7,7 @@ namespace LeadPrototype.Libs.Readers
     public interface IReader
     {
         IReaderSettings Settings { get; set; }
-        IEnumerable<Product> ReadObject();
+        IEnumerable<Product> ReadProducts();
         Table ReadTable(TableType type);
     }
 }

@@ -11,15 +11,18 @@ namespace LeadPrototype.Tests.Unit
     public class PacketBuilderTests
     {
         private List<Product> _products;
-        private Table _table;
+        private CorrelationTable _correlationTable;
+        private SubstitutesTable _substitutesTable;
 
         [SetUp]
         public void SetUp()
         {
             var settings = new CsvSettings(@"../../../Tmp/products.csv", @"../../../Tmp/products_corr_no_header.csv");
             var reader = ReaderFactory.CreateReader(settings);
-            _products = reader.ReadObject().ToList();          
-            _table = reader.ReadTable(TableType.Correlation);
+            _products = reader.ReadProducts().ToList();          
+            _correlationTable = (CorrelationTable)reader.ReadTable(TableType.Correlation);
+            ((CsvSettings) reader.Settings).PathToTable = @"../../../Tmp/substitutes.csv";
+            _substitutesTable = (SubstitutesTable)reader.ReadTable(TableType.Substitutes);
         }
 
         [Test]
@@ -31,35 +34,60 @@ namespace LeadPrototype.Tests.Unit
             packetFactory.AddPacketConstraint(p => p.Id < 5);
             var newProductCount = packetFactory.GetProductsCount();
             var differenceCount = oldProductCount - newProductCount;
-            Assert.AreEqual(1,differenceCount);
+            Assert.AreEqual(2,differenceCount);
         }
 
         [Test]
-        public void When_Products_And_Table_Are_Provided_CreatePackets_Returns_Best_Match_For_Each_Product()
+        public void When_Only_Correlation_Table_Is_Provided_CreatePackets_Returns_Packets_With_Correct_Product_But_Without_Substitutes()
         {
             var packetFactory=new PacketBuilder()
                 .AddProducts(_products)
-                .AddCorrelationTable(_table as CorrelationTable);
-            var packets=packetFactory.CreatePackets().OrderBy(p=>p.prod1).ToList();
-            Assert.Multiple(() =>
+                .AddCorrelationTable(_correlationTable);
+
+            var packets = packetFactory.CreatePackets().OrderBy(p => p.PacketProducts[0].Product.Id).ToList();
             {
-                Assert.AreEqual(4,packets.Count);
-                Assert.AreEqual(1, packets[0].prod1);
-                Assert.AreEqual(4,packets[0].prod2);
-                Assert.AreEqual(2, packets[0].val);
+                Assert.AreEqual(5,packets.Count);
+                Assert.AreEqual(1, packets[0].PacketProducts[0].Product.Id);
+                Assert.AreEqual(4,packets[0].PacketProducts[1].Product.Id);
+                Assert.AreEqual(2, packets[0].Correlation);
 
-                Assert.AreEqual(3, packets[1].prod1);
-                Assert.AreEqual(5, packets[1].prod2);
-                Assert.AreEqual(4, packets[1].val);
+                Assert.AreEqual(3, packets[1].PacketProducts[0].Product.Id);
+                Assert.AreEqual(5, packets[1].PacketProducts[1].Product.Id);
+                Assert.AreEqual(4, packets[1].Correlation);
 
-                Assert.AreEqual(4, packets[2].prod1);
-                Assert.AreEqual(5, packets[2].prod2);
-                Assert.AreEqual(3, packets[2].val);
+                Assert.AreEqual(4, packets[2].PacketProducts[0].Product.Id);
+                Assert.AreEqual(5, packets[2].PacketProducts[1].Product.Id);
+                Assert.AreEqual(3, packets[2].Correlation);
 
-                Assert.AreEqual(5, packets[3].prod1);
-                Assert.AreEqual(6, packets[3].prod2);
-                Assert.AreEqual(2, packets[3].val);
-            });
+                Assert.AreEqual(5, packets[3].PacketProducts[0].Product.Id);
+                Assert.AreEqual(6, packets[3].PacketProducts[1].Product.Id);
+                Assert.AreEqual(2, packets[3].Correlation);
+
+                Assert.AreEqual(6, packets[4].PacketProducts[0].Product.Id);
+                Assert.AreEqual(4, packets[4].PacketProducts[1].Product.Id);
+                Assert.AreEqual(1, packets[4].Correlation);
+            };
+        }
+
+        [Test]
+        public void When_Both_Tables_Are_Provided_CreatePackets_Returns_Packets_With_Correct_Product_And_Its_Substitutes()
+        {
+            var packetFactory = new PacketBuilder()              
+                .AddProducts(_products)
+                .AddPacketConstraint(p=>p.Id==3)
+                .AddCorrelationTable(_correlationTable)
+                .AddSubstitutesTable(_substitutesTable)
+                .SetNumberOfSubstitutes(3);
+
+
+            var packets = packetFactory.CreatePackets().OrderBy(p => p.PacketProducts[0].Product.Id).ToList();
+            {
+                Assert.AreEqual(1, packets.Count);
+                Assert.AreEqual(3, packets[0].PacketProducts[0].Product.Id);
+                Assert.AreEqual(5, packets[0].PacketProducts[1].Product.Id);
+                Assert.AreEqual(3, packets[0].PacketProducts[0].Substitutes.Count);     
+                CollectionAssert.AreEquivalent(new List<int> { 4, 5, 8 }, packets[0].PacketProducts[0].Substitutes.Select(s=>s.Key.Id));
+            };
         }
     }
 }

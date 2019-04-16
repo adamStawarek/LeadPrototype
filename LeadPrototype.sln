@@ -11,6 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LeadPrototype.Gui", "LeadPr
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2BB2543C-FEB5-4D15-9A52-4E55AD15A752}"
 	ProjectSection(SolutionItems) = preProject
+		Tmp\corr_map.csv = Tmp\corr_map.csv
 		Tmp\products.csv = Tmp\products.csv
 		readme.md = readme.md
 	EndProjectSection

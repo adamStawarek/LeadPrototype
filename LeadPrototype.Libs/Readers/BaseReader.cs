@@ -15,7 +15,8 @@ namespace LeadPrototype.Libs.Readers
             Logger = logger;
             Settings = settings;
         }     
-        public abstract IEnumerable<Product> ReadObject();
+
+        public abstract IEnumerable<Product> ReadProducts();
         public abstract Table ReadTable(TableType type);
     }
 }

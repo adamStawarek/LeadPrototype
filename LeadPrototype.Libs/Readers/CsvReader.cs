@@ -14,11 +14,9 @@ namespace LeadPrototype.Libs.Readers
 {
     public class CsvReader : BaseReader
     {
-        public CsvReader(ILogger logger, CsvSettings settings) : base(logger, settings)
-        {
-        }
+        public CsvReader(ILogger logger, CsvSettings settings) : base(logger, settings){}
 
-        public override IEnumerable<Product> ReadObject()
+        public override IEnumerable<Product> ReadProducts()
         {
             var filePath = ((CsvSettings) Settings).PathToProducts;
             if (!CheckFilePath(filePath)) return null;

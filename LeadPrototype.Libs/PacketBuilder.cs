@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using LeadPrototype.Libs.Helpers;
 using LeadPrototype.Libs.Models;
 using Serilog;
 using Serilog.Events;
@@ -13,6 +14,7 @@ namespace LeadPrototype.Libs
         private List<Product> _products;
         private CorrelationTable _correlationTable;
         private SubstitutesTable _substitutesTable;
+        private int countOfSubstitutesPerPacket = 5;
         private readonly ILogger _logger;
 
         public PacketBuilder()
@@ -42,59 +44,114 @@ namespace LeadPrototype.Libs
             return this;
         }
 
+        public PacketBuilder SetNumberOfSubstitutes(int n)
+        {
+            countOfSubstitutesPerPacket = n;
+            return this;
+        }
+
         public PacketBuilder AddPacketConstraint(Func<Product,bool> constraint)
         {
             _products = _products.Where(constraint).ToList();
             return this;
         }
 
-        public List<(int prod1, int prod2,float val)> CreatePackets()
+        public List<Packet> CreatePackets()
         {
-            if (!CheckIfProductsAndTableAreProvided(TableType.Correlation)) return null;
-            var packets = new List<(int prod1, int prod2, float val)>();
+            var packets=new List<Packet>();
+            if (!CheckIfProductsAndTableAreProvided(TableType.Correlation))
+            {
+                _logger.Write(LogEventLevel.Warning, "no correlation table provided");
+                return packets;
+            };        
             try
-            {               
+            {
                 foreach (var product in _products)
                 {
                     var values = _correlationTable.Content.FirstOrDefault(t => t.Key == product.Id).Value.ToList();
                     var productIndex = Mapper.MapToIndex(product);
                     values[productIndex] = -1;
-                    var max = values.Max();
-                    var index = values.IndexOf(max);
-                    var prod2Id = Mapper.MapToProduct(index).Id;
-                    packets.Add((product.Id,prod2Id,max));//if substitute equals 0 then there is no substitute for given product
+                    var maxCorrelation = values.Max();
+                    var index = values.IndexOf(maxCorrelation);
+                    var product2 = Mapper.MapToProduct(index);
+                    packets.Add(new Packet()
+                    {
+                        Correlation = maxCorrelation,
+                        PacketProducts = new PacketProduct[]
+                        {
+                            new PacketProduct()
+                            {
+                                Product = product
+                            },
+                            new PacketProduct()
+                            {
+                                Product = product2
+                            },
+                        }
+                    });                  
                 }
-
-                return packets.OrderByDescending(p=>p.val).ToList();
             }
             catch (Exception e)
             {
-                _logger.Write(LogEventLevel.Error,$"cannot create packets: exception occured: {e.InnerException}");
-               
-            } return packets.OrderByDescending(p => p.val).ToList();
+                _logger.Write(LogEventLevel.Error, $"cannot create packets for correlation table: exception: {e.InnerException}");
+                throw new Exception(e.InnerException.Message);
+
+            }
+
+            if (!CheckIfProductsAndTableAreProvided(TableType.Substitutes))
+            {
+                _logger.Write(LogEventLevel.Warning, "no substitutes table provided");
+                return packets;
+            };
+            try
+            {
+                foreach (var packet in packets)
+                {
+                    foreach (var packetProduct in packet.PacketProducts)
+                    {
+                        packetProduct.Substitutes=new Dictionary<Product, float>();
+                        var values = _substitutesTable.Content.FirstOrDefault(t => t.Key == packetProduct.Product.Id).Value.ToList();
+                        var productIndex = Mapper.MapToIndex(packetProduct.Product);
+                        values[productIndex] = -1;
+
+                        var indexesWithMaxValues =
+                            values.ToList().GetNIndexesOfBiggestValues(countOfSubstitutesPerPacket);
+                        foreach (var index in indexesWithMaxValues)
+                        {
+                            var correlation = values[index];
+                            var substitute = Mapper.MapToProduct(index);
+                            packetProduct.Substitutes.Add(substitute, correlation);
+                        }                       
+                    }
+                  
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.Write(LogEventLevel.Error, $"cannot create substitutes: exception: {e.InnerException}");
+                throw new Exception(e.InnerException.Message);
+
+            }
+
+            return packets;
         }
 
         private bool CheckIfProductsAndTableAreProvided(TableType type)
         {
-            if (type==TableType.Correlation&&(_correlationTable== null || _correlationTable.Content.Count < 1))
-            {
-                _logger.Write(LogEventLevel.Error, "no correlation table provided");
-                return false;
-            }
-
-            if (type==TableType.Substitutes&&(_substitutesTable == null || _substitutesTable.Content.Count < 1))
-            {
-                _logger.Write(LogEventLevel.Error, "no substitute table provided");
-                return false;
-            }
-
             if (_products == null || _products.Count < 1)
             {
                 _logger.Write(LogEventLevel.Error, "no products provided");
                 return false;
             }
-
-            return true;
+            switch (type)
+            {
+                case TableType.Correlation when (_correlationTable== null || _correlationTable.Content.Count < 1):
+                    return false;
+                case TableType.Substitutes when (_substitutesTable == null || _substitutesTable.Content.Count < 1):
+                    return false;
+                default:
+                    return true;
+            }
         }
 
         public int? GetProductsCount()
