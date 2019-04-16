@@ -21,8 +21,8 @@ namespace ReportGenerator.ViewModel
     {
 
         #region properties
-        public Table CorrelationTable { get; set; }
-        public Table SubstituesTable { get; set; }
+        public CorrelationTable CorrelationTable { get; set; }
+        public SubstitutesTable SubstituesTable { get; set; }
         public List<Product> Products { get; set; }
         public List<CategoryViewModel> Categories { get; set; }
         public ObservableCollection<FileViewModel> Files { get; set; }
@@ -31,6 +31,16 @@ namespace ReportGenerator.ViewModel
         #endregion
 
         #region computed properties
+        private Packet _selectedPacket;
+        public Packet SelectedPacket
+        {
+            get => _selectedPacket;
+            set
+            {
+                _selectedPacket = value;
+                RaisePropertyChanged("SelectedPacket");
+            }
+        }
         private Visibility _spinnerVisibility;
         public Visibility SpinnerVisibility
         {
@@ -72,6 +82,7 @@ namespace ReportGenerator.ViewModel
         public RelayCommand<object> DropFileCommand { get; }
         public RelayCommand GeneratePacketsCommand { get; set; }
         public RelayCommand ReadFilesCommand { get; set; }
+        public RelayCommand<object> SwapProductsCommand { get; set; }
         #endregion
 
         public MainViewModel()
@@ -80,6 +91,7 @@ namespace ReportGenerator.ViewModel
             DropFileCommand = new RelayCommand<object>(DropFiles);
             GeneratePacketsCommand = new RelayCommand(GeneratePackets);
             ReadFilesCommand = new RelayCommand(ReadFiles);
+            SwapProductsCommand = new RelayCommand<object>(SwapProducts);
 
             Files = new ObservableCollection<FileViewModel>();
             Packets = new ObservableCollection<Packet>();
@@ -89,11 +101,22 @@ namespace ReportGenerator.ViewModel
             FetchProductsAndCategories();
         }
 
+        private void SwapProducts(object obj)
+        {
+            var values = (object[])obj;
+            var newProductId = (int)values[0];
+            var orginal = (PacketProduct) values[1];
+            var newProduct = Products.First(p => p.Id == newProductId);
+            SelectedPacket.ChangeProduct(orginal.Product,newProduct);         
+        }
+
         private void GeneratePackets()
         {
             var packetFactory = new PacketBuilder()
                 .AddProducts(Products)
-                .AddCorrelationTable(CorrelationTable as CorrelationTable);
+                .AddCorrelationTable(CorrelationTable)
+                .AddSubstitutesTable(SubstituesTable)
+                .SetNumberOfSubstitutes(3);
 
             if (CategoryConstraint)
             {
@@ -109,18 +132,9 @@ namespace ReportGenerator.ViewModel
 
             try
             {
-                //var packets = packetFactory.CreatePackets().OrderBy(p => p.prod1).ToList();
-                //Packets.Clear();
-                //foreach (var packet in packets)
-                //{
-                //    var prod1 = Products.FirstOrDefault(p => p.Id == packet.prod1);
-                //    var prod2 = Products.FirstOrDefault(p => p.Id == packet.prod2);
-                //    Packets.Add(new Packet()
-                //    {
-                //        Products = new[] { prod1, prod2 },
-                //        Value = packet.val
-                //    });
-                //}
+                var packets = packetFactory.CreatePackets();
+                Packets.Clear();
+                packets.ForEach(p => Packets.Add(p));
             }
             catch (Exception e)
             {
@@ -166,12 +180,13 @@ namespace ReportGenerator.ViewModel
 
         private async void ReadFiles()
         {
-            CorrelationTable = SubstituesTable = null;
+            CorrelationTable = null;
+            SubstituesTable = null;
             var correlationFile = Files.First(f => f.IsCorrelationTable).FilePath;
             var substituesFile = Files.First(f => f.IsSubstitutesTable).FilePath;
             SpinnerVisibility = Visibility.Visible;
-            CorrelationTable = await FetchTable(correlationFile, TableType.Correlation);
-            SubstituesTable = await FetchTable(substituesFile, TableType.Substitutes);
+            CorrelationTable = (CorrelationTable)await FetchTable(correlationFile, TableType.Correlation);
+            SubstituesTable = (SubstitutesTable)await FetchTable(substituesFile, TableType.Substitutes);
             SpinnerVisibility = Visibility.Hidden;
         }
 

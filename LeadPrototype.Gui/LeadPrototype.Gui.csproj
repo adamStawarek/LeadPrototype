@@ -133,6 +133,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Converters\BoolInverseConverter.cs" />
+    <Compile Include="Converters\MultiConverter.cs" />
     <Compile Include="Converters\StringToDecimalConverter.cs" />
     <Compile Include="Models\CategoryViewModel.cs" />
     <Compile Include="Models\PriceRange.cs" />

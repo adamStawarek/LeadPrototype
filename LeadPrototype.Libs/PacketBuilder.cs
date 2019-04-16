@@ -14,7 +14,7 @@ namespace LeadPrototype.Libs
         private List<Product> _products;
         private CorrelationTable _correlationTable;
         private SubstitutesTable _substitutesTable;
-        private int countOfSubstitutesPerPacket = 5;
+        private int _countOfSubstitutesPerPacket = 5;
         private readonly ILogger _logger;
 
         public PacketBuilder()
@@ -46,7 +46,7 @@ namespace LeadPrototype.Libs
 
         public PacketBuilder SetNumberOfSubstitutes(int n)
         {
-            countOfSubstitutesPerPacket = n;
+            _countOfSubstitutesPerPacket = n;
             return this;
         }
 
@@ -94,7 +94,7 @@ namespace LeadPrototype.Libs
             catch (Exception e)
             {
                 _logger.Write(LogEventLevel.Error, $"cannot create packets for correlation table: exception: {e.InnerException}");
-                throw new Exception(e.InnerException.Message);
+                //throw new Exception(e.InnerException.Message); TODO
 
             }
 
@@ -115,13 +115,15 @@ namespace LeadPrototype.Libs
                         values[productIndex] = -1;
 
                         var indexesWithMaxValues =
-                            values.ToList().GetNIndexesOfBiggestValues(countOfSubstitutesPerPacket);
+                            values.ToList().GetNIndexesOfBiggestValues(_countOfSubstitutesPerPacket);
                         foreach (var index in indexesWithMaxValues)
                         {
                             var correlation = values[index];
                             var substitute = Mapper.MapToProduct(index);
                             packetProduct.Substitutes.Add(substitute, correlation);
-                        }                       
+                        }
+
+                        packetProduct.Substitutes=packetProduct.Substitutes.OrderByDescending(p => p.Value).ToDictionary(p=>p.Key,p=>p.Value);
                     }
                   
                 }
@@ -129,7 +131,7 @@ namespace LeadPrototype.Libs
             catch (Exception e)
             {
                 _logger.Write(LogEventLevel.Error, $"cannot create substitutes: exception: {e.InnerException}");
-                throw new Exception(e.InnerException.Message);
+                //throw new Exception(e.InnerException.Message); TODO 
 
             }
 
