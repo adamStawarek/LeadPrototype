@@ -19,15 +19,16 @@ namespace ReportGenerator.ViewModel
 {
     public class MainViewModel : ViewModelBase
     {
+        #region fields
+        private int substitutesCount = 5;
+        #endregion
 
-        #region properties
+        #region properties        
         public CorrelationTable CorrelationTable { get; set; }
         public SubstitutesTable SubstituesTable { get; set; }
         public List<Product> Products { get; set; }
-        public List<CategoryViewModel> Categories { get; set; }
         public ObservableCollection<FileViewModel> Files { get; set; }
         public ObservableCollection<Packet> Packets { get; set; }
-        public PriceRange PriceRange { get; set; }
         #endregion
 
         #region computed properties
@@ -38,7 +39,7 @@ namespace ReportGenerator.ViewModel
             set
             {
                 _selectedPacket = value;
-                RaisePropertyChanged("SelectedPacket");
+                RaisePropertyChanged(nameof(SelectedPacket));
             }
         }
         private Visibility _spinnerVisibility;
@@ -48,12 +49,13 @@ namespace ReportGenerator.ViewModel
             set
             {
                 _spinnerVisibility = value;
-                RaisePropertyChanged("SpinnerVisibility");
+                RaisePropertyChanged(nameof(SpinnerVisibility));
             }
         }
         #endregion
 
-        #region constraints
+        #region constraints 
+        public List<CategoryViewModel> Categories { get; set; }
         private bool _categoryConstraint;
         public bool CategoryConstraint
         {
@@ -61,18 +63,30 @@ namespace ReportGenerator.ViewModel
             set
             {
                 _categoryConstraint = value;
-                RaisePropertyChanged("CategoryConstraint");
+                RaisePropertyChanged(nameof(CategoryConstraint));
             }
         }
 
-        private bool _priceConstraint;
+        public PriceRange PriceRange { get; set; }
+        private bool _priceConstraint;  
         public bool PriceConstraint
         {
             get => _priceConstraint;
             set
             {
                 _priceConstraint = value;
-                RaisePropertyChanged("PriceConstraint");
+                RaisePropertyChanged(nameof(PriceConstraint));
+            }
+        }
+
+        public string ProductName { get; set; }
+        private bool _productNameConstraint;
+        public bool ProductNameConstraint {
+            get => _productNameConstraint;
+            set
+            {
+                _productNameConstraint = value; 
+                RaisePropertyChanged(nameof(ProductNameConstraint));
             }
         }
         #endregion
@@ -105,9 +119,9 @@ namespace ReportGenerator.ViewModel
         {
             var values = (object[])obj;
             var newProductId = (int)values[0];
-            var orginal = (PacketProduct) values[1];
+            var orginal = (PacketProduct)values[1];
             var newProduct = Products.First(p => p.Id == newProductId);
-            SelectedPacket.ChangeProduct(orginal.Product,newProduct);         
+            SelectedPacket.ChangeProduct(orginal.Product, newProduct);
         }
 
         private void GeneratePackets()
@@ -116,7 +130,7 @@ namespace ReportGenerator.ViewModel
                 .AddProducts(Products)
                 .AddCorrelationTable(CorrelationTable)
                 .AddSubstitutesTable(SubstituesTable)
-                .SetNumberOfSubstitutes(3);
+                .SetNumberOfSubstitutes(substitutesCount);
 
             if (CategoryConstraint)
             {
@@ -130,6 +144,11 @@ namespace ReportGenerator.ViewModel
                     p.AveragePrice >= PriceRange.From && p.AveragePrice <= PriceRange.To);
             }
 
+            if (ProductNameConstraint)
+            {
+                packetFactory.AddPacketConstraint(p => p.ProductName.ToLower().Contains(ProductName.ToLower()));
+            }
+
             try
             {
                 var packets = packetFactory.CreatePackets();
@@ -138,9 +157,8 @@ namespace ReportGenerator.ViewModel
             }
             catch (Exception e)
             {
-                Debug.WriteLine($"Something wrong: {e.InnerException}");
+                Debug.WriteLine($"cannot create packets: {e.InnerException}");
             }
-
         }
 
         private void FetchProductsAndCategories()

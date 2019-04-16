@@ -41,7 +41,7 @@
             Mode="PrimaryDark"
             Padding="15"
             DockPanel.Dock="Top">
-            <TextBlock Style="{DynamicResource MaterialDesignTitleTextBlock}" Text="Lead v1"
+            <TextBlock Style="{DynamicResource MaterialDesignTitleTextBlock}" Text="Lead v1.2"
                        HorizontalAlignment="Center" />
         </materialDesign:ColorZone>
 
@@ -86,7 +86,7 @@
                                     <Popup StaysOpen="False" x:Name="Popup" HorizontalAlignment="Center"
                                                  VerticalAlignment="Center" Placement="Left"
                                             AllowsTransparency="True" PopupAnimation="Scroll">
-                                        <materialDesign:Card Padding="5">
+                                        <materialDesign:Card Padding="5" Background="FloralWhite">
                                             <materialDesign:Card.Resources>
                                                 <Style TargetType="TextBlock">
                                                     <Setter Property="FontSize" Value="14"/>
@@ -194,7 +194,7 @@
                                         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                                             <TextBlock Text="Drop here" FontSize="16" HorizontalAlignment="Center" />
                                             <TextBlock Text="or" FontSize="16" HorizontalAlignment="Center" />
-                                            <Button Content="Select file" FontSize="16" HorizontalAlignment="Center"
+                                            <Button Content="Select files" FontSize="16" HorizontalAlignment="Center"
                                             Command="{Binding OpenFileCommand}" />
                                         </StackPanel>
                                     </Grid>
@@ -231,7 +231,7 @@
                           IsExpanded="{Binding IsExpanded,ElementName=TableExpander,Converter={StaticResource BoolInverseConverter}}">
                         <Expander.Header>
                             <TextBlock
-                                Text="LstPackets"
+                                Text="Packets"
                                 FontWeight="Bold" 
                                 FontSize="16">
                             </TextBlock>
@@ -273,6 +273,18 @@
                                             materialDesign:HintAssist.Hint="To"
                                             Text="{Binding PriceRange.To,Mode=TwoWay,StringFormat=0{0.0},Converter={StaticResource StringToDecimalConverter}}"
                                             Style="{StaticResource MaterialDesignFloatingHintTextBox}" Width="50"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Expander>
+                            <Expander Header="Products with name">
+                                <StackPanel  Margin="10" Background="White">
+                                    <CheckBox Content="Apply constraint" IsChecked="{Binding ProductNameConstraint,Mode=TwoWay}"  FontSize="16"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" IsEnabled="{Binding ProductNameConstraint}" Margin="0,0,0,10">
+                                        <TextBox
+                                            FontSize="16" 
+                                            materialDesign:HintAssist.Hint="Product name"
+                                            Text="{Binding ProductName,Mode=TwoWay}"
+                                            Style="{StaticResource MaterialDesignFloatingHintTextBox}" Width="100"/>
                                     </StackPanel>
                                 </StackPanel>
                             </Expander>
