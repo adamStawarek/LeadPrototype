@@ -22,7 +22,7 @@ namespace ReportGenerator.Converters
             });
            
 
-            var color = Color.FromRgb((byte)(150+boundIndex*20), (byte)(150+boundIndex * 20), 255);
+            var color = Color.FromRgb(0, (byte)(150+boundIndex * 20), 255);
             var brush = new SolidColorBrush(color);
             return brush;
         }

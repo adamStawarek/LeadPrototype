@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using LeadPrototype.Libs.Helpers;
+﻿using LeadPrototype.Libs.Helpers;
 using LeadPrototype.Libs.Models;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.InMemory;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace LeadPrototype.Libs
 {
@@ -16,6 +16,8 @@ namespace LeadPrototype.Libs
         private SubstitutesTable _substitutesTable;
         private int _countOfSubstitutesPerPacket = 5;
         private readonly ILogger _logger;
+        private float? _minCorrelation;
+        private float? _maxCorrelation;
 
         public PacketBuilder()
         {
@@ -50,20 +52,79 @@ namespace LeadPrototype.Libs
             return this;
         }
 
-        public PacketBuilder AddPacketConstraint(Func<Product,bool> constraint)
+        public PacketBuilder AddPacketConstraint(Func<Product, bool> constraint)
         {
             _products = _products.Where(constraint).ToList();
             return this;
         }
 
+        public PacketBuilder SetCorrelationConstraint(float? min, float? max)
+        {
+            _minCorrelation = min??float.MinValue;
+            _maxCorrelation = max??float.MaxValue;
+            return this;
+        }
+
         public List<Packet> CreatePackets()
         {
-            var packets=new List<Packet>();
+            var packets = new List<Packet>();
+
             if (!CheckIfProductsAndTableAreProvided(TableType.Correlation))
             {
                 _logger.Write(LogEventLevel.Warning, "no correlation table provided");
                 return packets;
-            };        
+            }
+
+            FetchFromCorrelationTable(packets);
+
+            if (!CheckIfProductsAndTableAreProvided(TableType.Substitutes))
+            {
+                _logger.Write(LogEventLevel.Warning, "no substitutes table provided");
+                return packets;
+            }
+
+            FetchFromSubstitutesTable(packets);
+
+
+            return packets;
+        }
+
+        private void FetchFromSubstitutesTable(IEnumerable<Packet> packets)
+        {
+            try
+            {
+                foreach (var packet in packets)
+                {
+                    foreach (var packetProduct in packet.PacketProducts)
+                    {
+                        packetProduct.Substitutes = new Dictionary<Product, float>();
+                        var values = _substitutesTable.Content.FirstOrDefault(t => t.Key == packetProduct.Product.Id).Value.ToList();
+                        var productIndex = Mapper.MapToIndex(packetProduct.Product);
+                        values[productIndex] = -1;
+
+                        var indexesWithMaxValues =
+                            values.ToList().GetNIndexesOfBiggestValues(_countOfSubstitutesPerPacket);
+                        foreach (var index in indexesWithMaxValues)
+                        {
+                            var correlation = values[index];
+                            var substitute = Mapper.MapToProduct(index);
+                            packetProduct.Substitutes.Add(substitute, correlation);
+                        }
+
+                        packetProduct.Substitutes = packetProduct.Substitutes.OrderByDescending(p => p.Value).ToDictionary(p => p.Key, p => p.Value);
+                    }
+
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.Write(LogEventLevel.Error, $"cannot create substitutes: exception: {e.InnerException}");
+
+            }
+        }
+
+        private void FetchFromCorrelationTable(ICollection<Packet> packets)
+        {
             try
             {
                 foreach (var product in _products)
@@ -72,6 +133,7 @@ namespace LeadPrototype.Libs
                     var productIndex = Mapper.MapToIndex(product);
                     values[productIndex] = -1;
                     var maxCorrelation = values.Max();
+                    if(maxCorrelation<_minCorrelation||maxCorrelation>_maxCorrelation) continue;
                     var index = values.IndexOf(maxCorrelation);
                     var product2 = Mapper.MapToProduct(index);
                     packets.Add(new Packet()
@@ -88,54 +150,13 @@ namespace LeadPrototype.Libs
                                 Product = product2
                             },
                         }
-                    });                  
+                    });
                 }
             }
             catch (Exception e)
             {
                 _logger.Write(LogEventLevel.Error, $"cannot create packets for correlation table: exception: {e.InnerException}");
-                //throw new Exception(e.InnerException.Message); TODO
-
             }
-
-            if (!CheckIfProductsAndTableAreProvided(TableType.Substitutes))
-            {
-                _logger.Write(LogEventLevel.Warning, "no substitutes table provided");
-                return packets;
-            };
-            try
-            {
-                foreach (var packet in packets)
-                {
-                    foreach (var packetProduct in packet.PacketProducts)
-                    {
-                        packetProduct.Substitutes=new Dictionary<Product, float>();
-                        var values = _substitutesTable.Content.FirstOrDefault(t => t.Key == packetProduct.Product.Id).Value.ToList();
-                        var productIndex = Mapper.MapToIndex(packetProduct.Product);
-                        values[productIndex] = -1;
-
-                        var indexesWithMaxValues =
-                            values.ToList().GetNIndexesOfBiggestValues(_countOfSubstitutesPerPacket);
-                        foreach (var index in indexesWithMaxValues)
-                        {
-                            var correlation = values[index];
-                            var substitute = Mapper.MapToProduct(index);
-                            packetProduct.Substitutes.Add(substitute, correlation);
-                        }
-
-                        packetProduct.Substitutes=packetProduct.Substitutes.OrderByDescending(p => p.Value).ToDictionary(p=>p.Key,p=>p.Value);
-                    }
-                  
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.Write(LogEventLevel.Error, $"cannot create substitutes: exception: {e.InnerException}");
-                //throw new Exception(e.InnerException.Message); TODO 
-
-            }
-
-            return packets;
         }
 
         private bool CheckIfProductsAndTableAreProvided(TableType type)
@@ -147,7 +168,7 @@ namespace LeadPrototype.Libs
             }
             switch (type)
             {
-                case TableType.Correlation when (_correlationTable== null || _correlationTable.Content.Count < 1):
+                case TableType.Correlation when (_correlationTable == null || _correlationTable.Content.Count < 1):
                     return false;
                 case TableType.Substitutes when (_substitutesTable == null || _substitutesTable.Content.Count < 1):
                     return false;

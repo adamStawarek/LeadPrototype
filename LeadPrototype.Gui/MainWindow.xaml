@@ -230,10 +230,6 @@
                             <StackPanel HorizontalAlignment="Center">
                                 <Label FontSize="16" ContentStringFormat="Number of loaded products: {0}"
                                Content="{Binding Products.Count,Mode=OneWay}" HorizontalAlignment="Center" />
-                                <!--<Label FontSize="16" ContentStringFormat="Correlation table: {0}"
-                               Content="" HorizontalAlignment="Center" />
-                                <Label FontSize="16" ContentStringFormat="Substitutes table: {0}"
-                               Content="" HorizontalAlignment="Center" />-->
                                 <Button Content="Read tables" HorizontalAlignment="Center" Command="{Binding ReadFilesCommand}" Margin="5"/>
                             </StackPanel>
                         </StackPanel>
@@ -296,6 +292,24 @@
                                             materialDesign:HintAssist.Hint="Product name"
                                             Text="{Binding ProductName,Mode=TwoWay}"
                                             Style="{StaticResource MaterialDesignFloatingHintTextBox}" Width="100"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Expander>
+                            <Expander Header="Min/Max correlation value">
+                                <StackPanel  Margin="10" Background="White">
+                                    <CheckBox Content="Apply constraint" IsChecked="{Binding CorrelationConstraint,Mode=TwoWay}"  FontSize="16"/>
+
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" IsEnabled="{Binding CorrelationConstraint}" Margin="0,0,0,10">
+                                        <TextBox
+                                            FontSize="16" 
+                                            materialDesign:HintAssist.Hint="Min"
+                                            Text="{Binding CorrelationMinConstraint,Mode=TwoWay,StringFormat=0{0.0},Converter={StaticResource StringToDecimalConverter}}"
+                                            Style="{StaticResource MaterialDesignFloatingHintTextBox}" Width="50"/>
+                                        <Label Content=" : " FontSize="16" VerticalAlignment="Bottom"/>
+                                        <TextBox FontSize="16"
+                                                 materialDesign:HintAssist.Hint="Max"
+                                                 Text="{Binding CorrelationMaxConstraint,Mode=TwoWay,StringFormat=0{0.0},Converter={StaticResource StringToDecimalConverter}}"
+                                                 Style="{StaticResource MaterialDesignFloatingHintTextBox}" Width="50"/>
                                     </StackPanel>
                                 </StackPanel>
                             </Expander>

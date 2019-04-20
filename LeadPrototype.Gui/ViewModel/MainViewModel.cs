@@ -15,13 +15,12 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using MoreLinq;
-using System.IO;
 
 namespace ReportGenerator.ViewModel
 {
     public class MainViewModel : ViewModelBase
     {
-       
+
         #region fields
         private int substitutesCount = 5;
         private const int batchCount = 5;
@@ -104,6 +103,17 @@ namespace ReportGenerator.ViewModel
                 RaisePropertyChanged(nameof(ProductNameConstraint));
             }
         }
+
+        public decimal? CorrelationMinConstraint { get; set; }
+        public decimal? CorrelationMaxConstraint { get; set; }
+        private bool _correlationConstraint;
+        public bool CorrelationConstraint { get => _correlationConstraint;
+            set
+            {
+                _correlationConstraint = value; 
+                RaisePropertyChanged(nameof(CorrelationConstraint));
+            }
+        }
         #endregion
 
         #region commands
@@ -130,6 +140,18 @@ namespace ReportGenerator.ViewModel
             FetchProductsAndCategories();
         }
 
+        private void FetchProductsAndCategories()
+        {
+            var settings = new CsvSettings(@"../../../Tmp/products.csv", "");
+            var reader = ReaderFactory.CreateReader(settings);
+            Products = reader.ReadProducts().ToList();
+            Categories = Products.GroupBy(x => new { x.CategoryId, x.CategoryName }).Select(p => new CategoryViewModel()
+            {
+                CategoryId = p.Key.CategoryId,
+                CategoryName = p.Key.CategoryName
+            }).ToList();
+        }
+
         private void SwapProducts(object obj)
         {
             var values = (object[])obj;
@@ -139,6 +161,7 @@ namespace ReportGenerator.ViewModel
             SelectedPacket.ChangeProduct(orginal.Product, newProduct);
         }
 
+        #region packet generation
         private async void GeneratePackets()
         {
             var packetFactory = new PacketBuilder()
@@ -147,6 +170,29 @@ namespace ReportGenerator.ViewModel
                 .AddSubstitutesTable(SubstituesTable)
                 .SetNumberOfSubstitutes(substitutesCount);
 
+            AddContraints(packetFactory);
+
+            try
+            {
+                Packets.Clear();
+                SpinnerVisibility = Visibility.Visible;
+                var packets = await Task.Run(() => packetFactory.CreatePackets());
+                packets = packets.OrderByDescending(p => p.Correlation).ToList();
+                packets.ForEach(p => Packets.Add(p));
+                ClassesBounds = await Task.Run(() => CreateClassesBounds());
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine($"cannot create packets: {e.InnerException}");
+            }
+            finally
+            {
+                SpinnerVisibility = Visibility.Hidden;
+            }
+        }
+
+        private void AddContraints(PacketBuilder packetFactory)
+        {
             if (CategoryConstraint)
             {
                 var selectedCategories = Categories.Where(c => c.IsSelected);
@@ -164,32 +210,19 @@ namespace ReportGenerator.ViewModel
                 packetFactory.AddPacketConstraint(p => p.ProductName.ToLower().Contains(ProductName.ToLower()));
             }
 
-            try
+            if (CorrelationConstraint)
             {
-                Packets.Clear();
-                SpinnerVisibility = Visibility.Visible;
-                var packets = await Task.Run(() => packetFactory.CreatePackets());
-                packets = packets.OrderByDescending(p => p.Correlation).ToList();               
-                packets.ForEach(p => Packets.Add(p));
-                ClassesBounds=await Task.Run(()=>CreateClassesBounds());
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine($"cannot create packets: {e.InnerException}");
-            }
-            finally
-            {
-                SpinnerVisibility = Visibility.Hidden;
+                packetFactory.SetCorrelationConstraint((float?)CorrelationMinConstraint, (float?)CorrelationMaxConstraint);
             }
         }
 
         private float[] CreateClassesBounds()
         {
-            long correlationSum = Packets.Sum(p => (int) p.Correlation);
+            long correlationSum = Packets.Sum(p => (int)p.Correlation);
             long batchCorrelation = correlationSum / batchCount;
             var bounds = new List<float>();
             double sum = 0;
-            foreach (var corr in Packets.Select(p=>p.Correlation))
+            foreach (var corr in Packets.Select(p => p.Correlation))
             {
                 if (sum < batchCorrelation)
                     sum += corr;
@@ -199,21 +232,11 @@ namespace ReportGenerator.ViewModel
                     sum = 0;
                 }
             }
-            return bounds.ToArray();  
+            return bounds.ToArray();
         }
+        #endregion
 
-        private void FetchProductsAndCategories()
-        {
-            var settings = new CsvSettings(@"../../../Tmp/products.csv", "");
-            var reader = ReaderFactory.CreateReader(settings);
-            Products = reader.ReadProducts().ToList();
-            Categories = Products.GroupBy(x => new { x.CategoryId, x.CategoryName }).Select(p => new CategoryViewModel()
-            {
-                CategoryId = p.Key.CategoryId,
-                CategoryName = p.Key.CategoryName
-            }).ToList();
-        }
-
+        #region fetching tables from files
         private void DropFiles(object eventArgs)
         {
             var e = eventArgs as DragEventArgs;
@@ -284,5 +307,6 @@ namespace ReportGenerator.ViewModel
             }
             return tmpTable;
         }
+        #endregion
     }
 }
