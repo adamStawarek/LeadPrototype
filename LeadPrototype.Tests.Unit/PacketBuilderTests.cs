@@ -31,7 +31,7 @@ namespace LeadPrototype.Tests.Unit
             var packetFactory = new PacketBuilder()
                 .AddProducts(_products);
             var oldProductCount = packetFactory.GetProductsCount();
-            packetFactory.AddPacketConstraint(p => p.Id < 5);
+            packetFactory.AddPacketConstraint(p => p.Id <= 1);
             var newProductCount = packetFactory.GetProductsCount();
             var differenceCount = oldProductCount - newProductCount;
             Assert.AreEqual(2,differenceCount);
@@ -46,26 +46,18 @@ namespace LeadPrototype.Tests.Unit
 
             var packets = packetFactory.CreatePackets().OrderBy(p => p.PacketProducts[0].Product.Id).ToList();
             {
-                Assert.AreEqual(5,packets.Count);
+                Assert.AreEqual(3,packets.Count);
                 Assert.AreEqual(1, packets[0].PacketProducts[0].Product.Id);
-                Assert.AreEqual(4,packets[0].PacketProducts[1].Product.Id);
+                Assert.AreEqual(3,packets[0].PacketProducts[1].Product.Id);
                 Assert.AreEqual(2, packets[0].Correlation);
 
-                Assert.AreEqual(3, packets[1].PacketProducts[0].Product.Id);
-                Assert.AreEqual(5, packets[1].PacketProducts[1].Product.Id);
+                Assert.AreEqual(2, packets[1].PacketProducts[0].Product.Id);
+                Assert.AreEqual(4, packets[1].PacketProducts[1].Product.Id);
                 Assert.AreEqual(4, packets[1].Correlation);
 
-                Assert.AreEqual(4, packets[2].PacketProducts[0].Product.Id);
-                Assert.AreEqual(5, packets[2].PacketProducts[1].Product.Id);
+                Assert.AreEqual(3, packets[2].PacketProducts[0].Product.Id);
+                Assert.AreEqual(4, packets[2].PacketProducts[1].Product.Id);
                 Assert.AreEqual(3, packets[2].Correlation);
-
-                Assert.AreEqual(5, packets[3].PacketProducts[0].Product.Id);
-                Assert.AreEqual(6, packets[3].PacketProducts[1].Product.Id);
-                Assert.AreEqual(2, packets[3].Correlation);
-
-                Assert.AreEqual(6, packets[4].PacketProducts[0].Product.Id);
-                Assert.AreEqual(4, packets[4].PacketProducts[1].Product.Id);
-                Assert.AreEqual(1, packets[4].Correlation);
             };
         }
 
@@ -84,9 +76,9 @@ namespace LeadPrototype.Tests.Unit
             {
                 Assert.AreEqual(1, packets.Count);
                 Assert.AreEqual(3, packets[0].PacketProducts[0].Product.Id);
-                Assert.AreEqual(5, packets[0].PacketProducts[1].Product.Id);
+                Assert.AreEqual(4, packets[0].PacketProducts[1].Product.Id);
                 Assert.AreEqual(3, packets[0].PacketProducts[0].Substitutes.Count);     
-                CollectionAssert.AreEquivalent(new List<int> { 4, 5, 8 }, packets[0].PacketProducts[0].Substitutes.Select(s=>s.Key.Id));
+                CollectionAssert.AreEquivalent(new List<int> { 4, 6, 9 }, packets[0].PacketProducts[0].Substitutes.Select(s=>s.Key.Id));
             };
         }
     }

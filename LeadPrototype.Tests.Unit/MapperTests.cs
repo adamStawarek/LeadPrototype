@@ -21,9 +21,9 @@ namespace LeadPrototype.Tests.Unit
         {
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(3,Mapper.MapToProduct(1).Id);
-                Assert.AreEqual(43,Mapper.MapToProduct(35).Id);
-                Assert.AreEqual(11982,Mapper.MapToProduct(10332).Id);
+                Assert.AreEqual(2,Mapper.MapToProduct(1).Id);
+                Assert.AreEqual(39,Mapper.MapToProduct(35).Id);
+                Assert.AreEqual(11983,Mapper.MapToProduct(10332).Id);
             });           
         }
         
@@ -32,9 +32,9 @@ namespace LeadPrototype.Tests.Unit
         {
             Assert.Multiple(() =>
             {
-                Assert.AreEqual(1,Mapper.MapToIndex(new Product(){Id = 3}));
-                Assert.AreEqual(35,Mapper.MapToIndex(new Product(){Id = 43}));
-                Assert.AreEqual(10332,Mapper.MapToIndex(new Product(){Id = 11982}));
+                Assert.AreEqual(2,Mapper.MapToIndex(new Product(){Id = 3}));
+                Assert.AreEqual(38,Mapper.MapToIndex(new Product(){Id = 43}));
+                Assert.AreEqual(10331,Mapper.MapToIndex(new Product(){Id = 11982}));
             });           
         }
     }

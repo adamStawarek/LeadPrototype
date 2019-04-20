@@ -17,18 +17,16 @@ namespace LeadPrototype.Tests.Unit
             var reader = ReaderFactory.CreateReader(settings);
             var expected = new List<Product>
             {
-                new Product(){Id=1, ProductName = "Piwo specjalne butelka 149",CategoryId = 13,CategoryName = "Piwo",AveragePrice = 3.46m},
-                new Product(){Id=3, ProductName = "Piwo jasne premium butelka 89",CategoryId = 13,CategoryName = "Piwo",AveragePrice = 2.55m},
-                new Product(){Id=4, ProductName = "Fast-food pozostałe 39",CategoryId = 6,CategoryName = "Żabka Cafe",AveragePrice = 4.97m},
-                new Product(){Id=5, ProductName = "Warzywa, owoce, rośliny REG 258",CategoryId = 18,CategoryName = "Warzywa & Owoce & Rośliny",AveragePrice = 7.26m},
-                new Product(){Id= 6, ProductName= "Konserwy mięsne 980", CategoryId= 2, CategoryName= "Artykuły spożywcze", AveragePrice= 5.49m}
+                new Product(){Id=1, ProductName = "Rogale impulsowe 18",CategoryId = 15,CategoryName = "Słodycze",AveragePrice = 2.69m},
+                new Product(){Id=2, ProductName = "Znicze, wkłady 219",CategoryId = 5,CategoryName = "Niespożywcze",AveragePrice = 4.14m},
+                new Product(){Id=3, ProductName = "Nabiał REG 161",CategoryId = 17,CategoryName = "Spożywka świeża",AveragePrice = 1.98m}
             };
             
              var actual = reader.ReadProducts().ToList();
              
             Assert.Multiple(() =>
             {              
-                Assert.AreEqual(5, actual.Count());
+                Assert.AreEqual(3, actual.Count());
                 CollectionAssert.AreEquivalent(expected, actual);
             });
         }
@@ -37,7 +35,7 @@ namespace LeadPrototype.Tests.Unit
         public void ReadTable_Returns_Collection_Of_8_Dictionaries_In_Which_Keys_Are_Product_Indexes()
         {
             var settings = new CsvSettings("",@"../../../Tmp/products_corr_no_header.csv");
-            var expected = new List<int> {1, 3, 4, 5, 6, 8, 9, 10};
+            var expected = new List<int> {1,2, 3, 4, 5, 6, 8, 9};
             var reader = ReaderFactory.CreateReader(settings);
             var table = reader.ReadTable(TableType.Correlation);
             Assert.Multiple(() =>
