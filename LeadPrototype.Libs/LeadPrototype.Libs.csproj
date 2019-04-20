@@ -4,6 +4,10 @@
         <TargetFrameworks>netcoreapp2.1;net472</TargetFrameworks>
     </PropertyGroup>
 
+  <PropertyGroup>
+    <ServerGarbageCollection>true</ServerGarbageCollection>
+  </PropertyGroup>
+
     <ItemGroup>
       <PackageReference Include="Serilog" Version="2.8.0" />
       <PackageReference Include="Serilog.Sinks.ColoredConsole" Version="3.0.1" />

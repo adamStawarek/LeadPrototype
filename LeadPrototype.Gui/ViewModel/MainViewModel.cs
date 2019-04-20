@@ -68,7 +68,7 @@ namespace ReportGenerator.ViewModel
         }
 
         public PriceRange PriceRange { get; set; }
-        private bool _priceConstraint;  
+        private bool _priceConstraint;
         public bool PriceConstraint
         {
             get => _priceConstraint;
@@ -81,11 +81,12 @@ namespace ReportGenerator.ViewModel
 
         public string ProductName { get; set; }
         private bool _productNameConstraint;
-        public bool ProductNameConstraint {
+        public bool ProductNameConstraint
+        {
             get => _productNameConstraint;
             set
             {
-                _productNameConstraint = value; 
+                _productNameConstraint = value;
                 RaisePropertyChanged(nameof(ProductNameConstraint));
             }
         }
@@ -124,7 +125,7 @@ namespace ReportGenerator.ViewModel
             SelectedPacket.ChangeProduct(orginal.Product, newProduct);
         }
 
-        private void GeneratePackets()
+        private async void GeneratePackets()
         {
             var packetFactory = new PacketBuilder()
                 .AddProducts(Products)
@@ -151,13 +152,18 @@ namespace ReportGenerator.ViewModel
 
             try
             {
-                var packets = packetFactory.CreatePackets();
+                SpinnerVisibility = Visibility.Visible;
+                var packets = await Task.Run(() => packetFactory.CreatePackets());
                 Packets.Clear();
                 packets.ForEach(p => Packets.Add(p));
             }
             catch (Exception e)
             {
                 Debug.WriteLine($"cannot create packets: {e.InnerException}");
+            }
+            finally
+            {
+                SpinnerVisibility = Visibility.Hidden;
             }
         }
 
@@ -203,38 +209,34 @@ namespace ReportGenerator.ViewModel
             var correlationFile = Files.First(f => f.IsCorrelationTable).FilePath;
             var substituesFile = Files.First(f => f.IsSubstitutesTable).FilePath;
             SpinnerVisibility = Visibility.Visible;
-            CorrelationTable = (CorrelationTable)await FetchTable(correlationFile, TableType.Correlation);
-            SubstituesTable = (SubstitutesTable)await FetchTable(substituesFile, TableType.Substitutes);
+
+            var cTask = Task.Run(() => FetchTable(correlationFile, TableType.Correlation));
+            var fTask = Task.Run(() => FetchTable(substituesFile, TableType.Substitutes));
+
+            CorrelationTable = (CorrelationTable)await cTask;
+            SubstituesTable = (SubstitutesTable)await fTask;
             SpinnerVisibility = Visibility.Hidden;
+            MessageBox.Show($"Correlation table size: {CorrelationTable.Content.Count}, Substitutes table size: {SubstituesTable.Content.Count}");
         }
 
-        private async Task<Table> FetchTable(string file, TableType type)
+        private Table FetchTable(string file, TableType type)
         {
             Table tmpTable = null;
-            await Task.Run(delegate
+            try
             {
-                try
+                var settings = new CsvSettings("", file);
+                var reader = ReaderFactory.CreateReader(settings);
+                tmpTable = reader.ReadTable(type);
+            }
+            catch (Exception e)
+            {
+                Dispatcher.CurrentDispatcher.Invoke(() =>
                 {
-                    var settings = new CsvSettings("", file);
-                    var reader = ReaderFactory.CreateReader(settings);
+                    SpinnerVisibility = Visibility.Hidden;
+                    MessageBox.Show($"Exception occured when reading {file.Split('\\').Last()}, exception: {e.InnerException}");
+                });
 
-                    tmpTable = reader.ReadTable(type);
-                    Dispatcher.CurrentDispatcher.Invoke(() =>
-                    {
-                        MessageBox.Show($"Sucesfully loadded table from {file.Split('\\').Last()}, number of rows: {tmpTable.Content.Count}");
-                    });
-
-                }
-                catch (Exception e)
-                {
-                    Dispatcher.CurrentDispatcher.Invoke(() =>
-                    {
-                        SpinnerVisibility = Visibility.Hidden;
-                        MessageBox.Show($"Exception occured when reading {file.Split('\\').Last()}, exception: {e.InnerException}");
-                    });
-
-                }
-            });
+            }
             return tmpTable;
         }
     }

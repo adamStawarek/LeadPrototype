@@ -74,14 +74,17 @@ namespace LeadPrototype.Libs.Readers
 
             try
             {
-                var lines = File.ReadAllLines(filePath).ToList();
+                var lines = File.ReadLines(filePath);
+
+                var separator = new[] { ',' };
+
                 var result = lines.AsParallel().AsOrdered().Select((line, index) =>
                 {
-                    // Logger.Write(LogEventLevel.Information, $"parse {index} table row");
-                    var values = line?.Split(',').Where(v => !string.IsNullOrEmpty(v)).Select(f => f.Replace('.', ',')).Select(float.Parse).ToArray();
+                    var values = line?.Split(separator, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(f => float.Parse(f, CultureInfo.InvariantCulture)).ToArray();
                     return (Mapper.MapToProduct(index).Id, values);
                 }).ToDictionary(d => d.Item1, d => d.Item2);
-
+            
                 switch (type)
                 {
                     case TableType.Correlation:

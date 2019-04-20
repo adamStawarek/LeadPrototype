@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using LeadPrototype.Libs.Models;
 using LeadPrototype.Libs.Readers;
@@ -53,6 +54,6 @@ namespace LeadPrototype.Tests.Unit
             var settings = new CsvSettings("",@"../../../../Tmp/corelation_table.csv");
             var reader = ReaderFactory.CreateReader(settings);
             Assert.DoesNotThrow(()=>reader.ReadTable(TableType.Correlation));                     
-        }  
+        }      
     }
 }
