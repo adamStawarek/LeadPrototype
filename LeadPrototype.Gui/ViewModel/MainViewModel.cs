@@ -14,13 +14,17 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+using MoreLinq;
+using System.IO;
 
 namespace ReportGenerator.ViewModel
 {
     public class MainViewModel : ViewModelBase
     {
+       
         #region fields
         private int substitutesCount = 5;
+        private const int batchCount = 5;
         #endregion
 
         #region properties        
@@ -52,6 +56,16 @@ namespace ReportGenerator.ViewModel
                 RaisePropertyChanged(nameof(SpinnerVisibility));
             }
         }
+        private float[] _classesBounds;
+        public float[] ClassesBounds
+        {
+            get => _classesBounds;
+            set
+            {
+                _classesBounds = value;
+                RaisePropertyChanged(nameof(ClassesBounds));
+            }
+        }
         #endregion
 
         #region constraints 
@@ -80,7 +94,7 @@ namespace ReportGenerator.ViewModel
         }
 
         public string ProductName { get; set; }
-        private bool _productNameConstraint;
+        private bool _productNameConstraint;      
         public bool ProductNameConstraint
         {
             get => _productNameConstraint;
@@ -152,10 +166,12 @@ namespace ReportGenerator.ViewModel
 
             try
             {
+                Packets.Clear();
                 SpinnerVisibility = Visibility.Visible;
                 var packets = await Task.Run(() => packetFactory.CreatePackets());
-                Packets.Clear();
+                packets = packets.OrderByDescending(p => p.Correlation).ToList();               
                 packets.ForEach(p => Packets.Add(p));
+                ClassesBounds=await Task.Run(()=>CreateClassesBounds());
             }
             catch (Exception e)
             {
@@ -165,6 +181,25 @@ namespace ReportGenerator.ViewModel
             {
                 SpinnerVisibility = Visibility.Hidden;
             }
+        }
+
+        private float[] CreateClassesBounds()
+        {
+            long correlationSum = Packets.Sum(p => (int) p.Correlation);
+            long batchCorrelation = correlationSum / batchCount;
+            var bounds = new List<float>();
+            double sum = 0;
+            foreach (var corr in Packets.Select(p=>p.Correlation))
+            {
+                if (sum < batchCorrelation)
+                    sum += corr;
+                else
+                {
+                    bounds.Add(corr);
+                    sum = 0;
+                }
+            }
+            return bounds.ToArray();  
         }
 
         private void FetchProductsAndCategories()
@@ -204,19 +239,29 @@ namespace ReportGenerator.ViewModel
 
         private async void ReadFiles()
         {
+            Packets.Clear();
             CorrelationTable = null;
             SubstituesTable = null;
             var correlationFile = Files.First(f => f.IsCorrelationTable).FilePath;
             var substituesFile = Files.First(f => f.IsSubstitutesTable).FilePath;
+
             SpinnerVisibility = Visibility.Visible;
+
+            var watch = new Stopwatch();
+            watch.Start();
 
             var cTask = Task.Run(() => FetchTable(correlationFile, TableType.Correlation));
             var fTask = Task.Run(() => FetchTable(substituesFile, TableType.Substitutes));
 
             CorrelationTable = (CorrelationTable)await cTask;
             SubstituesTable = (SubstitutesTable)await fTask;
+
+            watch.Stop();
             SpinnerVisibility = Visibility.Hidden;
-            MessageBox.Show($"Correlation table size: {CorrelationTable.Content.Count}, Substitutes table size: {SubstituesTable.Content.Count}");
+
+            MessageBox.Show($"Correlation table size: {CorrelationTable.Content.Count}" +
+                            $"{Environment.NewLine}Substitutes table size: {SubstituesTable.Content.Count}" +
+                            $"{Environment.NewLine}Excecution time: {watch.ElapsedMilliseconds}(ms)", "Fetching tables finished", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private Table FetchTable(string file, TableType type)

@@ -24,16 +24,7 @@
         <converters:StringToDecimalConverter x:Key="StringToDecimalConverter"/>
         <converters:BoolInverseConverter x:Key="BoolInverseConverter"/>
         <converters:MultiConverter x:Key="MultiConverter"/>
-        <Style TargetType="{x:Type ListBoxItem}" x:Key="LstItemStyle">
-            <Style.Triggers>
-                <Trigger  Property="ItemsControl.AlternationIndex" Value="0">
-                    <Setter Property="Background" Value="#FFFFC750"/>
-                </Trigger>
-                <Trigger Property="ItemsControl.AlternationIndex" Value="1">
-                    <Setter Property="Background" Value="#FFFF9850"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
+        <converters:CorrelationValueToColorConverter x:Key="CorrelationValueToColorConverter"/>
     </Window.Resources>
 
     <DockPanel x:Name="Main" Background="{DynamicResource PrimaryHueLightBrush}">
@@ -56,8 +47,13 @@
                 <Grid>
                     <fa:ImageAwesome Icon="Spinner" Visibility="{Binding SpinnerVisibility}" Foreground="{DynamicResource PrimaryHueDarkBrush}"
                                      HorizontalAlignment="Center" VerticalAlignment="Center" Spin="True" Height="80" Width="80" />
-                    <ListBox x:Name="LstPackets" ItemsSource="{Binding Packets}" SelectedItem="{Binding SelectedPacket}" ItemContainerStyle="{StaticResource LstItemStyle}"
-                              SelectionMode="Single" AlternationCount="2">
+                    <ListBox x:Name="LstPackets" ItemsSource="{Binding Packets}" SelectedItem="{Binding SelectedPacket}"
+                              SelectionMode="Single">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Padding" Value="5"/>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
                         <ListBox.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <WrapPanel x:Name="WrapPanel" Orientation="Horizontal" />
@@ -65,86 +61,101 @@
                         </ListBox.ItemsPanel>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel HorizontalAlignment="Left" Orientation="Vertical">
-                                    <ItemsControl ItemsSource="{Binding PacketProducts}">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <StackPanel HorizontalAlignment="Left">
-                                                    <TextBlock Foreground="{DynamicResource PrimaryHueLightForegroundBrush}"
+                                <Border Padding="5">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background">
+                                                <Setter.Value>
+                                                    <MultiBinding Converter="{StaticResource CorrelationValueToColorConverter}">
+                                                        <Binding Path="Correlation"/>
+                                                        <Binding Path="DataContext.ClassesBounds" ElementName="Main"/>
+                                                    </MultiBinding>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Border.Style>
+                                    <StackPanel HorizontalAlignment="Left" Orientation="Vertical">
+                                        
+                                        <ItemsControl ItemsSource="{Binding PacketProducts}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel HorizontalAlignment="Left">
+                                                        <TextBlock Foreground="{DynamicResource PrimaryHueLightForegroundBrush}"
                                                                    Text="{Binding Product.ProductName}" FontSize="14" FontWeight="Bold"/>
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-                                    <Label Foreground="{DynamicResource PrimaryHueLightForegroundBrush}" 
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <Label Foreground="{DynamicResource PrimaryHueLightForegroundBrush}" 
                                                ContentStringFormat="Total price: {0}zł"
                                                Content="{Binding TotalPrice,NotifyOnSourceUpdated=True}" FontSize="14" FontWeight="Bold"/>
-                                    <Label Foreground="{DynamicResource PrimaryHueLightForegroundBrush}" 
+                                        <Label Foreground="{DynamicResource PrimaryHueLightForegroundBrush}" 
                                            ContentStringFormat="Correlation value: {0}"
                                            Content="{Binding Correlation}" FontSize="14" FontWeight="Bold"/>
 
-                                    <Popup StaysOpen="False" x:Name="Popup" HorizontalAlignment="Center"
+                                        <Popup StaysOpen="False" x:Name="Popup" HorizontalAlignment="Center"
                                                  VerticalAlignment="Center" Placement="Left"
                                             AllowsTransparency="True" PopupAnimation="Scroll">
-                                        <materialDesign:Card Padding="5" Background="FloralWhite">
-                                            <materialDesign:Card.Resources>
-                                                <Style TargetType="TextBlock">
-                                                    <Setter Property="FontSize" Value="14"/>
-                                                    <Setter Property="VerticalAlignment" Value="Bottom"/>
-                                                </Style>
-                                            </materialDesign:Card.Resources>
-                                            <ItemsControl ItemsSource="{Binding DataContext.SelectedPacket.PacketProducts,ElementName=Main}">
-                                                <ItemsControl.ItemsPanel>
-                                                    <ItemsPanelTemplate>
-                                                        <WrapPanel Orientation="Horizontal" />
-                                                    </ItemsPanelTemplate>
-                                                </ItemsControl.ItemsPanel>
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <StackPanel>
-                                                            <TextBlock x:Name="OriginalProduct" Text="{Binding Product.ProductName}" HorizontalAlignment="Center" FontWeight="Bold"
+                                            <materialDesign:Card Padding="5" Background="FloralWhite">
+                                                <materialDesign:Card.Resources>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="FontSize" Value="14"/>
+                                                        <Setter Property="VerticalAlignment" Value="Bottom"/>
+                                                    </Style>
+                                                </materialDesign:Card.Resources>
+                                                <ItemsControl ItemsSource="{Binding DataContext.SelectedPacket.PacketProducts,ElementName=Main}">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <WrapPanel Orientation="Horizontal" />
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <StackPanel>
+                                                                <TextBlock x:Name="OriginalProduct" Text="{Binding Product.ProductName}" HorizontalAlignment="Center" FontWeight="Bold"
                                                                            Foreground="{DynamicResource PrimaryHueLightForegroundBrush}"/>
-                                                            <ItemsControl ItemsSource="{Binding Substitutes}" AlternationCount="100">
-                                                               
-                                                                <ItemsControl.ItemTemplate>
-                                                                    <DataTemplate>
-                                                                        <StackPanel Orientation="Horizontal">
-                                                                            <TextBlock Text="{Binding Key.ProductName}" VerticalAlignment="Center"/>
-                                                                            <TextBlock Text="   -   " VerticalAlignment="Center"/>
-                                                                            <TextBlock Text="{Binding Value}" VerticalAlignment="Center"/>
-                                                                            <Button Margin="10,0,0,0"  
+                                                                <ItemsControl ItemsSource="{Binding Substitutes}" AlternationCount="100">
+
+                                                                    <ItemsControl.ItemTemplate>
+                                                                        <DataTemplate>
+                                                                            <StackPanel Orientation="Horizontal">
+                                                                                <TextBlock Text="{Binding Key.ProductName}" VerticalAlignment="Center"/>
+                                                                                <TextBlock Text="   -   " VerticalAlignment="Center"/>
+                                                                                <TextBlock Text="{Binding Value}" VerticalAlignment="Center"/>
+                                                                                <Button Margin="10,0,0,0"  
                                                                                 Background="Transparent"
                                                                                 BorderBrush="Transparent"
                                                                                 VerticalAlignment="Center"
                                                                                 Padding="5,0,5,0"
                                                                                 ToolTip="Swap with original" Command="{Binding DataContext.SwapProductsCommand,ElementName=Main}">
-                                                                                <materialDesign:PackIcon
+                                                                                    <materialDesign:PackIcon
                                                                                     Foreground="CornflowerBlue"
                                                                                     Kind="SwapHorizontalBold"
                                                                                     Height="20"
                                                                                     Width="20" />
-                                                                                <Button.CommandParameter>
-                                                                                    <MultiBinding Converter="{StaticResource MultiConverter}">
-                                                                                        <MultiBinding.Bindings>
-                                                                                            <Binding Path="Key.Id" />
-                                                                                            <Binding Path="DataContext" RelativeSource="{RelativeSource Mode=FindAncestor,AncestorLevel=1,AncestorType=ItemsControl}"  />
-                                                                                        </MultiBinding.Bindings>
-                                                                                    </MultiBinding>
-                                                                                </Button.CommandParameter>
-                                                                            </Button>
-                                                                           
-                                                                        </StackPanel>
-                                                                    </DataTemplate>
-                                                                </ItemsControl.ItemTemplate>
-                                                            </ItemsControl>
-                                                        </StackPanel>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
-                                        </materialDesign:Card>
-                                    </Popup>
+                                                                                    <Button.CommandParameter>
+                                                                                        <MultiBinding Converter="{StaticResource MultiConverter}">
+                                                                                            <MultiBinding.Bindings>
+                                                                                                <Binding Path="Key.Id" />
+                                                                                                <Binding Path="DataContext" RelativeSource="{RelativeSource Mode=FindAncestor,AncestorLevel=1,AncestorType=ItemsControl}"  />
+                                                                                            </MultiBinding.Bindings>
+                                                                                        </MultiBinding>
+                                                                                    </Button.CommandParameter>
+                                                                                </Button>
 
-                                </StackPanel>
+                                                                            </StackPanel>
+                                                                        </DataTemplate>
+                                                                    </ItemsControl.ItemTemplate>
+                                                                </ItemsControl>
+                                                            </StackPanel>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </materialDesign:Card>
+                                        </Popup>
+
+                                    </StackPanel>
+                                </Border>
                                 <DataTemplate.Triggers>
                                     <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ListBoxItem}}, Path=IsSelected}" Value="True">
                                         <Setter TargetName="Popup" Property="IsOpen" Value="True" />
