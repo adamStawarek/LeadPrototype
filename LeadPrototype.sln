@@ -9,9 +9,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeadPrototype.Tests.Unit", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LeadPrototype.Gui", "LeadPrototype.Gui\LeadPrototype.Gui.csproj", "{748113C2-BDBB-4311-85E8-8428A5BCDCB4}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2BB2543C-FEB5-4D15-9A52-4E55AD15A752}"
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "LeadSetup", "LeadSetup\LeadSetup.vdproj", "{CE891866-0DA9-4E80-A514-6AD99DF66EA8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6811CA74-88F0-4021-B97A-3FEC3575F4CB}"
 	ProjectSection(SolutionItems) = preProject
-		Tmp\products.csv = Tmp\products.csv
 		readme.md = readme.md
 	EndProjectSection
 EndProject
@@ -33,6 +34,8 @@ Global
 		{748113C2-BDBB-4311-85E8-8428A5BCDCB4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{748113C2-BDBB-4311-85E8-8428A5BCDCB4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{748113C2-BDBB-4311-85E8-8428A5BCDCB4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE891866-0DA9-4E80-A514-6AD99DF66EA8}.Debug|Any CPU.ActiveCfg = Debug
+		{CE891866-0DA9-4E80-A514-6AD99DF66EA8}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

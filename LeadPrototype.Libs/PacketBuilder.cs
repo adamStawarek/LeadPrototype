@@ -177,6 +177,12 @@ namespace LeadPrototype.Libs
             }
         }
 
+        public List<Product> GetProducts()
+        {
+            return _products;
+
+        }
+
         public int? GetProductsCount()
         {
             return _products.Count;

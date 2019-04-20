@@ -65,6 +65,14 @@ namespace ReportGenerator.ViewModel
                 RaisePropertyChanged(nameof(ClassesBounds));
             }
         }
+        private List<Product> _packetsProducts;
+        public List<Product> PacketsProducts { get => _packetsProducts;
+            set
+            {
+                _packetsProducts = value; 
+                RaisePropertyChanged(nameof(PacketsProducts));
+            }
+        }
         #endregion
 
         #region constraints 
@@ -93,7 +101,7 @@ namespace ReportGenerator.ViewModel
         }
 
         public string ProductName { get; set; }
-        private bool _productNameConstraint;      
+        private bool _productNameConstraint;
         public bool ProductNameConstraint
         {
             get => _productNameConstraint;
@@ -106,11 +114,13 @@ namespace ReportGenerator.ViewModel
 
         public decimal? CorrelationMinConstraint { get; set; }
         public decimal? CorrelationMaxConstraint { get; set; }
-        private bool _correlationConstraint;
-        public bool CorrelationConstraint { get => _correlationConstraint;
+        private bool _correlationConstraint;       
+        public bool CorrelationConstraint
+        {
+            get => _correlationConstraint;
             set
             {
-                _correlationConstraint = value; 
+                _correlationConstraint = value;
                 RaisePropertyChanged(nameof(CorrelationConstraint));
             }
         }
@@ -142,7 +152,7 @@ namespace ReportGenerator.ViewModel
 
         private void FetchProductsAndCategories()
         {
-            var settings = new CsvSettings(@"../../../Tmp/products.csv", "");
+            var settings = new CsvSettings(@"C:\Windows\LeadPrototype\products.csv", "");
             var reader = ReaderFactory.CreateReader(settings);
             Products = reader.ReadProducts().ToList();
             Categories = Products.GroupBy(x => new { x.CategoryId, x.CategoryName }).Select(p => new CategoryViewModel()
@@ -174,12 +184,14 @@ namespace ReportGenerator.ViewModel
 
             try
             {
+                PacketsProducts = null;
                 Packets.Clear();
                 SpinnerVisibility = Visibility.Visible;
                 var packets = await Task.Run(() => packetFactory.CreatePackets());
                 packets = packets.OrderByDescending(p => p.Correlation).ToList();
                 packets.ForEach(p => Packets.Add(p));
                 ClassesBounds = await Task.Run(() => CreateClassesBounds());
+                PacketsProducts = packetFactory.GetProducts();
             }
             catch (Exception e)
             {

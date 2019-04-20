@@ -189,6 +189,11 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="logo.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\LeadPrototype.Libs\LeadPrototype.Libs.csproj">
       <Project>{2cdc2174-817b-47ea-860e-03f43acc58e1}</Project>
       <Name>LeadPrototype.Libs</Name>

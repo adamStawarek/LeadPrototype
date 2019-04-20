@@ -14,6 +14,9 @@ namespace ReportGenerator.Converters
         {
             var correlationValue = (float)values[0];
             var bounds = (float[])values[1];
+            if (bounds == null || bounds.Length < 2)
+                return new SolidColorBrush(Colors.LightSkyBlue);
+
             var boundIndex = bounds.Length-1;
             bounds.ToList().ForEach(b =>
             {

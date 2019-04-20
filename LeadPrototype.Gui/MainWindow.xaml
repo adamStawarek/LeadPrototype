@@ -10,7 +10,7 @@
         xmlns:fa="http://schemas.fontawesome.io/icons/"
         DataContext="{Binding Main, Source={StaticResource Locator}}"
         mc:Ignorable="d"
-        Title="Packet Generator" Height="660" Width="1100"
+        Title="Packet Generator" Height="660" Width="1250"
         ResizeMode="CanMinimize"
         WindowStartupLocation="CenterScreen"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
@@ -18,6 +18,7 @@
         TextElement.FontSize="13"
         TextOptions.TextFormattingMode="Ideal"
         TextOptions.TextRenderingMode="Auto"
+        Icon="logo.ico"
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}">
     <Window.Resources>
@@ -32,7 +33,7 @@
             Mode="PrimaryDark"
             Padding="15"
             DockPanel.Dock="Top">
-            <TextBlock Style="{DynamicResource MaterialDesignTitleTextBlock}" Text="Lead v1.2"
+            <TextBlock Style="{DynamicResource MaterialDesignTitleTextBlock}" Text="Prototype Version 1.3.0"
                        HorizontalAlignment="Center" />
         </materialDesign:ColorZone>
 
@@ -45,10 +46,15 @@
 
             <materialDesign:Card Grid.Column="0" Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
                     <fa:ImageAwesome Icon="Spinner" Visibility="{Binding SpinnerVisibility}" Foreground="{DynamicResource PrimaryHueDarkBrush}"
-                                     HorizontalAlignment="Center" VerticalAlignment="Center" Spin="True" Height="80" Width="80" />
+                                     HorizontalAlignment="Center" VerticalAlignment="Center" Spin="True" Height="80" Width="80"  Grid.ColumnSpan="3"/>
                     <ListBox x:Name="LstPackets" ItemsSource="{Binding Packets}" SelectedItem="{Binding SelectedPacket}"
-                              SelectionMode="Single">
+                              SelectionMode="Single" Grid.Column="0">
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">
                                 <Setter Property="Padding" Value="5"/>
@@ -94,7 +100,7 @@
                                            Content="{Binding Correlation}" FontSize="14" FontWeight="Bold"/>
 
                                         <Popup StaysOpen="False" x:Name="Popup" HorizontalAlignment="Center"
-                                                 VerticalAlignment="Center" Placement="Left"
+                                                 VerticalAlignment="Center" Placement="Left" 
                                             AllowsTransparency="True" PopupAnimation="Scroll">
                                             <materialDesign:Card Padding="5" Background="FloralWhite">
                                                 <materialDesign:Card.Resources>
@@ -167,6 +173,23 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
+                    <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Column="2">
+                        <ItemsControl ItemsSource="{Binding PacketsProducts}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Expander Header="{Binding ProductName}">
+                                    <StackPanel MinWidth="200" Margin="20,0,0,0" Background="White">
+                                        <Label ContentStringFormat="Product id: {0}" Content="{Binding Id}" FontSize="14"/>
+                                        <Label ContentStringFormat="Category: {0}"  Content="{Binding CategoryName}" FontSize="14"/>
+                                        <Label ContentStringFormat="Average price: {0}zł"  Content="{Binding AveragePrice}" FontSize="14"/>
+                                    </StackPanel>
+                                </Expander>
+
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
                 </Grid>
             </materialDesign:Card>
 

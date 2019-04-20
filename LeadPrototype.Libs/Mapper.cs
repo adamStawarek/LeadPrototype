@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using LeadPrototype.Libs.Models;
 using LeadPrototype.Libs.Readers;
 using LeadPrototype.Libs.Readers.Settings;
@@ -20,7 +17,7 @@ namespace LeadPrototype.Libs
         private static Product[] FetchProducts()
         {
 
-            var settings = new CsvSettings(@"C:\Users\adams\RiderProjects\LeadPrototype\Tmp\products.csv", "");
+            var settings = new CsvSettings(@"C:\Windows\LeadPrototype\products.csv", "");
             var reader = ReaderFactory.CreateReader(settings);
             var products = reader.ReadProducts().ToArray();            
             return products;
