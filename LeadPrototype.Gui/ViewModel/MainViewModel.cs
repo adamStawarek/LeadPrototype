@@ -66,13 +66,25 @@ namespace ReportGenerator.ViewModel
             }
         }
         private List<Product> _packetsProducts;
-        public List<Product> PacketsProducts { get => _packetsProducts;
+        public List<Product> PacketsProducts
+        {
+            get => _packetsProducts;
             set
             {
-                _packetsProducts = value; 
+                _packetsProducts = value;
                 RaisePropertyChanged(nameof(PacketsProducts));
             }
         }
+        private string _filterString;
+        public string FilterString
+        {
+            get => _filterString;
+            set
+            {
+                _filterString = value;
+                RaisePropertyChanged(nameof(FilterString));
+            }
+        } 
         #endregion
 
         #region constraints 
@@ -114,7 +126,7 @@ namespace ReportGenerator.ViewModel
 
         public decimal? CorrelationMinConstraint { get; set; }
         public decimal? CorrelationMaxConstraint { get; set; }
-        private bool _correlationConstraint;       
+        private bool _correlationConstraint;      
         public bool CorrelationConstraint
         {
             get => _correlationConstraint;
@@ -191,7 +203,7 @@ namespace ReportGenerator.ViewModel
                 packets = packets.OrderByDescending(p => p.Correlation).ToList();
                 packets.ForEach(p => Packets.Add(p));
                 ClassesBounds = await Task.Run(() => CreateClassesBounds());
-                PacketsProducts = packetFactory.GetProducts();
+                PacketsProducts = Packets.Select(p => p.PacketProducts[0].Product).ToList();
             }
             catch (Exception e)
             {
