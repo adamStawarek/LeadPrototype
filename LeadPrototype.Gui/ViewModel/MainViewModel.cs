@@ -74,17 +74,7 @@ namespace ReportGenerator.ViewModel
                 _packetsProducts = value;
                 RaisePropertyChanged(nameof(PacketsProducts));
             }
-        }
-        private string _filterString;
-        public string FilterString
-        {
-            get => _filterString;
-            set
-            {
-                _filterString = value;
-                RaisePropertyChanged(nameof(FilterString));
-            }
-        } 
+        }        
         #endregion
 
         #region constraints 

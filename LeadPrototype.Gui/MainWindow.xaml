@@ -34,7 +34,7 @@
             Mode="PrimaryDark"
             Padding="15"
             DockPanel.Dock="Top">
-            <TextBlock Style="{DynamicResource MaterialDesignTitleTextBlock}" Text="Prototype Version 1.3.3"
+            <TextBlock Style="{DynamicResource MaterialDesignTitleTextBlock}" Text="Prototype Version 1.3.4"
                        HorizontalAlignment="Center" />
         </materialDesign:ColorZone>
 
