@@ -149,6 +149,7 @@ namespace ReportGenerator.ViewModel
             Packets = new ObservableCollection<Packet>();
             PriceRange = new PriceRange();
             SpinnerVisibility = Visibility.Hidden;
+            EncryptProperties = true;
 
             FetchProductsAndCategories();
         }

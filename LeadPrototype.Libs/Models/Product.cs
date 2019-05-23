@@ -72,7 +72,7 @@ namespace LeadPrototype.Libs.Models
             }
             else
             {
-                EncryptedProductName = string.Join(" ", singleWords.Take(singleWords.Length - 1)) + singleWords.Last().GetHashCode().ToString().Substring(0, 5);
+                EncryptedProductName = string.Join(" ", singleWords.Take(singleWords.Length - 1)) +"-"+ singleWords.Last().GetHashCode().ToString().Substring(0, 5);
             }
         }
         

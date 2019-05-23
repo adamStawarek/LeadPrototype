@@ -28,6 +28,15 @@
         <converters:CorrelationValueToColorConverter x:Key="CorrelationValueToColorConverter"/>
         <converters:FilterByProductNameConverter x:Key="FilterByProductNameConverter"/>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <Style x:Key="OriginalPropertyVisibility">
+            <Setter Property="Control.Visibility" 
+                    Value="{Binding IsChecked,ElementName=CkbEncrypt,Converter={StaticResource BoolToVisibilityConverter}
+                    ,ConverterParameter='Inverse'}"/>
+        </Style>
+        <Style x:Key="EncryptedPropertyVisibility">
+            <Setter Property="Control.Visibility" 
+                    Value="{Binding IsChecked,ElementName=CkbEncrypt,Converter={StaticResource BoolToVisibilityConverter}}"/>
+        </Style>
     </Window.Resources>
 
     <DockPanel x:Name="Main" Background="{DynamicResource PrimaryHueLightBrush}">
@@ -93,22 +102,20 @@
                                                 <DataTemplate>
                                                     <StackPanel HorizontalAlignment="Left">
                                                         <TextBlock Foreground="{DynamicResource PrimaryHueLightForegroundBrush}" 
-                                                                   Visibility="{Binding IsChecked,ElementName=CkbEncrypt,Converter={StaticResource BoolToVisibilityConverter}
-                                                            ,ConverterParameter='Inverse'}"
+                                                                   Style="{StaticResource OriginalPropertyVisibility}"
                                                                    Text="{Binding Product.ProductName}" FontSize="14" FontWeight="Bold"/>
                                                         <TextBlock Foreground="{DynamicResource PrimaryHueLightForegroundBrush}"
-                                                                   Visibility="{Binding IsChecked,ElementName=CkbEncrypt,Converter={StaticResource BoolToVisibilityConverter}}"
+                                                                   Style="{StaticResource EncryptedPropertyVisibility}"
                                                                    Text="{Binding Product.EncryptedProductName}" FontSize="14" FontWeight="Bold"/>
                                                     </StackPanel>
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>
                                         <Label Foreground="{DynamicResource PrimaryHueLightForegroundBrush}" 
-                                               ContentStringFormat="Total price: {0}" Visibility="{Binding IsChecked,ElementName=CkbEncrypt,Converter={StaticResource BoolToVisibilityConverter}
-                                                            ,ConverterParameter='Inverse'}"
+                                               ContentStringFormat="Total price: {0}" Style="{StaticResource OriginalPropertyVisibility}"
                                                Content="{Binding TotalPrice,NotifyOnSourceUpdated=True}" FontSize="14" FontWeight="Bold"/>
                                         <Label Foreground="{DynamicResource PrimaryHueLightForegroundBrush}" 
-                                               ContentStringFormat="Total price: {0}" Visibility="{Binding IsChecked,ElementName=CkbEncrypt,Converter={StaticResource BoolToVisibilityConverter}}"
+                                               ContentStringFormat="Total price: {0}" Style="{StaticResource EncryptedPropertyVisibility}"
                                                Content="{Binding EncryptedTotalPrice,NotifyOnSourceUpdated=True}" FontSize="14" FontWeight="Bold"/>
                                         <Label Foreground="{DynamicResource PrimaryHueLightForegroundBrush}" 
                                            ContentStringFormat="Correlation value: {0}"
@@ -134,22 +141,18 @@
                                                         <DataTemplate>
                                                             <StackPanel>
                                                                 <TextBlock x:Name="OriginalProduct" Text="{Binding Product.ProductName}" HorizontalAlignment="Center" FontWeight="Bold"
-                                                                           Foreground="{DynamicResource PrimaryHueLightForegroundBrush}" Visibility="{Binding IsChecked,ElementName=CkbEncrypt,Converter={StaticResource BoolToVisibilityConverter}
-                                                            ,ConverterParameter='Inverse'}"/>
+                                                                           Foreground="{DynamicResource PrimaryHueLightForegroundBrush}" Style="{StaticResource OriginalPropertyVisibility}"/>
                                                                 <TextBlock x:Name="OriginalProduct2" Text="{Binding Product.EncryptedProductName}"
                                                                            HorizontalAlignment="Center" FontWeight="Bold"
-                                                                           Visibility="{Binding IsChecked,ElementName=CkbEncrypt,
-                                                                    Converter={StaticResource BoolToVisibilityConverter}}"
+                                                                           Style="{StaticResource EncryptedPropertyVisibility}"
                                                                            Foreground="{DynamicResource PrimaryHueLightForegroundBrush}"/>
                                                                 <ItemsControl ItemsSource="{Binding Substitutes}" AlternationCount="100">
 
                                                                     <ItemsControl.ItemTemplate>
                                                                         <DataTemplate>
                                                                             <StackPanel Orientation="Horizontal">
-                                                                                <TextBlock Text="{Binding Key.ProductName}" VerticalAlignment="Center" Visibility="{Binding IsChecked,ElementName=CkbEncrypt,Converter={StaticResource BoolToVisibilityConverter}
-                                                            ,ConverterParameter='Inverse'}"/>
-                                                                                <TextBlock Text="{Binding Key.EncryptedProductName}" VerticalAlignment="Center" Visibility="{Binding IsChecked,ElementName=CkbEncrypt,
-                                                                                    Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                                                <TextBlock Text="{Binding Key.ProductName}" VerticalAlignment="Center" Style="{StaticResource OriginalPropertyVisibility}"/>
+                                                                                <TextBlock Text="{Binding Key.EncryptedProductName}" VerticalAlignment="Center" Style="{StaticResource EncryptedPropertyVisibility}"/>
                                                                                 <TextBlock Text="   -   " VerticalAlignment="Center"/>
                                                                                 <TextBlock Text="{Binding Value}" VerticalAlignment="Center"/>
                                                                                 <Button Margin="10,0,0,0"  
@@ -221,15 +224,13 @@
                                                 <Expander.Header>
                                                     <Grid>
                                                         <TextBlock
-                                                        Text="{Binding ProductName}"  Visibility="{Binding IsChecked,ElementName=CkbEncrypt,Converter={StaticResource BoolToVisibilityConverter}
-                                                            ,ConverterParameter='Inverse'}"/>
+                                                        Text="{Binding ProductName}"  Style="{StaticResource OriginalPropertyVisibility}"/>
                                                         <TextBlock
-                                                        Text="{Binding EncryptedProductName}" Visibility="{Binding IsChecked,ElementName=CkbEncrypt,Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                        Text="{Binding EncryptedProductName}" Style="{StaticResource EncryptedPropertyVisibility}"/>
                                                     </Grid>
                                                 </Expander.Header>
                                                 <Grid  Background="White">
-                                                    <StackPanel MinWidth="200" Margin="20,0,0,0" Visibility="{Binding IsChecked,ElementName=CkbEncrypt,Converter={StaticResource BoolToVisibilityConverter}
-                                                            ,ConverterParameter='Inverse'}">
+                                                    <StackPanel MinWidth="200" Margin="20,0,0,0" Style="{StaticResource OriginalPropertyVisibility}">
                                                         <TextBox FontSize="14" HorizontalAlignment="Left"
                                                  materialDesign:HintAssist.Hint="Product name"
                                                  Text="{Binding ProductName,Mode=TwoWay}"
@@ -238,7 +239,7 @@
                                                         <Label ContentStringFormat="Category: {0}"  Content="{Binding CategoryName}" FontSize="14"/>
                                                         <Label ContentStringFormat="Average price: {0}"  Content="{Binding AveragePrice}" FontSize="14"/>
                                                     </StackPanel>
-                                                    <StackPanel MinWidth="200" Margin="20,0,0,0" Visibility="{Binding IsChecked,ElementName=CkbEncrypt,Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <StackPanel MinWidth="200" Margin="20,0,0,0" Style="{StaticResource EncryptedPropertyVisibility}">
                                                         <TextBox FontSize="14" HorizontalAlignment="Left"
                                                                  materialDesign:HintAssist.Hint="Product name"
                                                                  Text="{Binding EncryptedProductName,Mode=TwoWay}"
