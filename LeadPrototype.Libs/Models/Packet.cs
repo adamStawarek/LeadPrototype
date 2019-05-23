@@ -12,6 +12,10 @@ namespace LeadPrototype.Libs.Models
         {
             get { return PacketProducts.Sum(p => p.Product.AveragePrice); }
         }
+        public decimal EncryptedTotalPrice
+        {
+            get { return PacketProducts.Sum(p => p.Product.EncryptedAveragePrice); }
+        }
         public PacketProduct[] PacketProducts { get; set; }
         public float Correlation { get; set; }
 
@@ -21,6 +25,7 @@ namespace LeadPrototype.Libs.Models
             {
                 PacketProducts.First(p => p.Product.Id == original.Id).Product = newProduct;
                 OnPropertyChanged(nameof(TotalPrice));
+                OnPropertyChanged(nameof(EncryptedTotalPrice));
             }
             catch 
             {

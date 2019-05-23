@@ -139,6 +139,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Converters\BoolInverseConverter.cs" />
+    <Compile Include="Converters\BoolToVisibilityConverter.cs" />
     <Compile Include="Converters\CorrelationValueToColorConverter.cs" />
     <Compile Include="Converters\FilterByProductNameConverter.cs" />
     <Compile Include="Converters\MultiConverter.cs" />

@@ -27,6 +27,7 @@ namespace ReportGenerator.ViewModel
         #endregion
 
         #region properties        
+        public bool EncryptProperties { get; set; }
         public CorrelationTable CorrelationTable { get; set; }
         public SubstitutesTable SubstituesTable { get; set; }
         public List<Product> Products { get; set; }
@@ -170,6 +171,7 @@ namespace ReportGenerator.ViewModel
             var newProductId = (int)values[0];
             var orginal = (PacketProduct)values[1];
             var newProduct = Products.First(p => p.Id == newProductId);
+            newProduct.EncryptProperties();
             SelectedPacket.ChangeProduct(orginal.Product, newProduct);
         }
 
@@ -191,7 +193,15 @@ namespace ReportGenerator.ViewModel
                 SpinnerVisibility = Visibility.Visible;
                 var packets = await Task.Run(() => packetFactory.CreatePackets());
                 packets = packets.OrderByDescending(p => p.Correlation).ToList();
-                packets.ForEach(p => Packets.Add(p));
+                packets.ForEach(p =>
+                {
+                    p.PacketProducts.ForEach(pp=>
+                    {
+                        pp.Product.EncryptProperties();
+                        pp.Substitutes.ForEach(s=>s.Key.EncryptProperties());
+                    });
+                    Packets.Add(p);
+                });
                 ClassesBounds = await Task.Run(() => CreateClassesBounds());
                 PacketsProducts = Packets.Select(p => p.PacketProducts[0].Product).ToList();
             }

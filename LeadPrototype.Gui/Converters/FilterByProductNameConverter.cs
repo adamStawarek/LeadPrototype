@@ -10,10 +10,13 @@ namespace ReportGenerator.Converters
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
             var productName = (string)values[0];
-            var searchString = (string)values[1];
+            var encryptedProductName = (string)values[1];
+            var isEncrypted = (bool)values[2];
+            var searchString = (string)values[3];
             if (string.IsNullOrEmpty(searchString))
                 return Visibility.Visible;
-            return productName.ToLower().Contains(searchString.ToLower()) ? Visibility.Visible : Visibility.Collapsed;
+            var name = isEncrypted ? encryptedProductName : productName;
+            return name.ToLower().Contains(searchString.ToLower()) ? Visibility.Visible : Visibility.Collapsed;
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)

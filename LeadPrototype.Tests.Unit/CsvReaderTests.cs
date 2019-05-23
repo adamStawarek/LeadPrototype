@@ -54,4 +54,13 @@ namespace LeadPrototype.Tests.Unit
             Assert.DoesNotThrow(()=>reader.ReadTable(TableType.Correlation));                     
         }      
     }
+
+    [TestFixture]
+    public class ConvertersTests
+    {
+        public void PartialAnonymizer_Converts_Last_Number_Of_String_To_Hash()
+        {
+
+        }
+    }
 }
